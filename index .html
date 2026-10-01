@@ -1,0 +1,2174 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FALCON EDSS // MULTI-HAZARD COMMAND</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    },
+                    colors: {
+                        canvasBase: '#07090e',
+                        brandRed: '#EF4444',
+                        brandAmber: '#F59E0B',
+                        brandCyan: '#06B6D4',
+                        brandGreen: '#10B981',
+                        brandOrange: '#F97316',
+                        brandPurple: '#8B5CF6',
+                        brandYellow: '#EAB308'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        /* Base Canvas & Apple Pro Dark Glass Aesthetic */
+      body { 
+            /* Premium Apple Obsidian & Studio Light Effect */
+            background-color: #030406;
+            background-image: radial-gradient(circle at 50% -20%, #1c212d 0%, #07090e 45%, #020203 100%);
+            background-attachment: fixed;
+            color: #F8FAFC; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 120FPS GPU HARDWARE ACCELERATION LAYER */
+        .gpu-layer {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+            will-change: transform, opacity;
+        }
+        
+        /* Razor-clean header backdrop */
+        .glass-header {
+            background: rgba(11, 15, 23, 0.78);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Obsidian Glass Panels */
+        .obsidian-glass {
+            background: rgba(14, 20, 32, 0.72);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        }
+
+        .obsidian-glass-button {
+            background: rgba(20, 28, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            min-height: 44px;
+        }
+
+        /* Cinematic Kinetics */
+        .cinematic-hover {
+            position: relative;
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+                        border-color 0.22s ease, background-color 0.22s ease;
+            z-index: 1;
+        }
+        .cinematic-hover::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            will-change: opacity;
+            z-index: -1;
+        }
+        .cinematic-hover:hover {
+            transform: translate3d(0, -2px, 0);
+        }
+        .cinematic-hover:hover::after {
+            opacity: 1;
+        }
+        .cinematic-hover:active {
+            transition: transform 0.08s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translate3d(0, 1px, 0) scale3d(0.988, 0.988, 1);
+        }
+        .cinematic-hover:active::after {
+            transition: opacity 0.08s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0.4;
+        }
+
+        /* Subtle Kinetics */
+        .spring-interactive {
+            position: relative;
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+                        border-color 0.22s ease, background-color 0.22s ease;
+        }
+        .spring-interactive:active {
+            transition: transform 0.08s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translate3d(0, 1px, 0) scale3d(0.985, 0.985, 1);
+        }
+
+        .spring-interactive-subtle {
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease;
+        }
+        .spring-interactive-subtle:active {
+            transition: transform 0.08s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translate3d(0, 1px, 0) scale3d(0.97, 0.97, 1);
+        }
+
+        /* Breathing Telemetry */
+        @keyframes organic-breathe {
+            0%, 100% { opacity: 0.35; transform: scale3d(0.9, 0.9, 1); box-shadow: 0 0 4px rgba(16,185,129,0.2); }
+            50% { opacity: 0.9; transform: scale3d(1.15, 1.15, 1); box-shadow: 0 0 12px rgba(16,185,129,0.8); }
+        }
+        .animate-organic-breathe {
+            animation: organic-breathe 4s ease-in-out infinite;
+            will-change: transform, opacity, box-shadow;
+        }
+        
+        /* Vehicle GPS Pulses */
+        @keyframes pulse-cyan { 0% { box-shadow: 0 0 0 0 rgba(6,182,212,0.7); } 70% { box-shadow: 0 0 0 10px rgba(6,182,212,0); } 100% { box-shadow: 0 0 0 0 rgba(6,182,212,0); } }
+        .animate-pulse-cyan { animation: pulse-cyan 2s infinite; }
+        
+        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); } 70% { box-shadow: 0 0 0 10px rgba(16,185,129,0); } 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } }
+        .animate-pulse-green { animation: pulse-green 2s infinite; }
+
+        @keyframes pulse-amber { 0% { box-shadow: 0 0 0 0 rgba(245,158,11,0.7); } 70% { box-shadow: 0 0 0 10px rgba(245,158,11,0); } 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); } }
+        .animate-pulse-amber { animation: pulse-amber 2s infinite; }
+
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { box-shadow: 0 0 0 10px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+        .animate-pulse-red { animation: pulse-red 2s infinite; }
+
+        @keyframes pulse-purple { 0% { box-shadow: 0 0 0 0 rgba(139,92,246,0.7); } 70% { box-shadow: 0 0 0 10px rgba(139,92,246,0); } 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0); } }
+        .animate-pulse-purple { animation: pulse-purple 2s infinite; }
+
+        /* Map Tiles & Tactical Overlays */
+        #map-container { background-color: #030507; }
+        .tactical-dark-tiles { filter: brightness(0.5) invert(1) contrast(2) hue-rotate(210deg) saturate(0.2) !important; }
+        .leaflet-container .leaflet-control-attribution { background: rgba(14, 20, 32, 0.8) !important; color: rgba(255,255,255,0.3) !important; font-size: 10px; border-top-left-radius: 6px; }
+        
+        .leaflet-tooltip.tactical-label {
+            background: rgba(8, 11, 17, 0.88); border: 1px solid currentColor; color: inherit;
+            font-family: 'Fira Code', monospace; font-size: 9px; font-weight: 600;
+            text-shadow: 0 0 8px rgba(0,0,0,0.8); box-shadow: 0 0 15px currentColor;
+            backdrop-filter: blur(4px); padding: 4px 8px;
+        }
+
+        /* Dynamic Map Polylines */
+        .route-glow-green { filter: drop-shadow(0 0 6px #10B981); animation: dash-flow 1.5s linear infinite; stroke-dasharray: 6 8; cursor: pointer; }
+        .route-glow-red { filter: drop-shadow(0 0 6px #EF4444); animation: dash-flow-reverse 1.5s linear infinite; stroke-dasharray: 8 8; cursor: pointer; }
+        @keyframes dash-flow { to { stroke-dashoffset: -14; } }
+        @keyframes dash-flow-reverse { to { stroke-dashoffset: 16; } }
+
+        /* Risk Polygons & Swaths */
+        @keyframes pulse-critical { from { stroke-width: 1.5; filter: drop-shadow(0 0 4px #ef4444); } to { stroke-width: 3.5; filter: drop-shadow(0 0 15px #ef4444); } }
+        .svg-pulse-critical { animation: pulse-critical 2s cubic-bezier(0.4,0,0.6,1) infinite alternate; color: #ef4444; cursor: pointer; outline: none; }
+        
+        @keyframes storm-swath { 0% { opacity: 0.1; transform: scale(0.95); } 50% { opacity: 0.3; transform: scale(1.05); } 100% { opacity: 0.1; transform: scale(0.95); } }
+        .svg-storm-swath { animation: storm-swath 4s ease-in-out infinite; transform-origin: center; color: #06B6D4; }
+
+        @keyframes heat-glow { 0% { fill-opacity: 0.2; filter: drop-shadow(0 0 10px #EF4444); } 50% { fill-opacity: 0.5; filter: drop-shadow(0 0 25px #F59E0B); } 100% { fill-opacity: 0.2; filter: drop-shadow(0 0 10px #EF4444); } }
+        .svg-heat-glow { animation: heat-glow 3s ease-in-out infinite; color: #EF4444; border:none; }
+
+        @keyframes lightning-strike { 0%, 100% { opacity: 0; } 5%, 15% { opacity: 1; filter: brightness(2) drop-shadow(0 0 10px #EAB308); } 10% { opacity: 0; } }
+        .svg-lightning { animation: lightning-strike 5s infinite; color: #EAB308; }
+
+        /* GPS Beacon */
+        .gps-beacon-pulse { animation: gps-pulse 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+        @keyframes gps-pulse { 0% { transform: scale3d(0.8, 0.8, 1); box-shadow: 0 0 0 0 rgba(6,182,212,0.7); } 70% { transform: scale3d(1.3, 1.3, 1); box-shadow: 0 0 0 15px rgba(6,182,212,0); } 100% { transform: scale3d(0.8, 0.8, 1); box-shadow: 0 0 0 0 rgba(6,182,212,0); } }
+        
+        /* Banners */
+        #siren-banner { transform: translateY(-100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+        #siren-banner.active { transform: translateY(0); }
+        #gps-banner { transform: translateY(-100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+
+        /* Dynamic Island */
+        #dynamic-island {
+            background: rgba(14, 20, 32, 0.85); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-top: 1px solid rgba(255, 255, 255, 0.2); border-radius: 9999px;
+            transform: translate3d(0, 150%, 0) scale3d(0.9, 0.9, 1); opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease; will-change: transform, opacity; bottom: 5rem;
+        }
+        @media (min-width: 768px) { #dynamic-island { bottom: 2.5rem; } }
+        #dynamic-island.island-active { transform: translate3d(0, 0, 0) scale3d(1, 1, 1); opacity: 1; }
+
+        /* Multi-Hazard Selectors */
+        .hazard-pill {
+            background: rgba(255, 255, 255, 0.05); color: #94A3B8; border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px; border-radius: 9999px; font-size: 10px; font-weight: 600; font-family: 'Fira Code', monospace;
+            white-space: nowrap; transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; letter-spacing: 0.1em;
+        }
+        .hazard-pill:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .hazard-pill.active-flood { background: rgba(6, 182, 212, 0.15); color: #06B6D4; border-color: rgba(6, 182, 212, 0.4); box-shadow: 0 0 15px rgba(6,182,212,0.2); }
+        .hazard-pill.active-cyclone { background: rgba(139, 92, 246, 0.15); color: #A78BFA; border-color: rgba(139, 92, 246, 0.4); box-shadow: 0 0 15px rgba(139,92,246,0.2); }
+        .hazard-pill.active-heatwave { background: rgba(239, 68, 68, 0.15); color: #FCA5A5; border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 15px rgba(239,68,68,0.2); }
+        .hazard-pill.active-lightning { background: rgba(234, 179, 8, 0.15); color: #FDE047; border-color: rgba(234, 179, 8, 0.4); box-shadow: 0 0 15px rgba(234,179,8,0.2); }
+        .hazard-pill.active-landslide { background: rgba(249, 115, 22, 0.15); color: #FDBA74; border-color: rgba(249, 115, 22, 0.4); box-shadow: 0 0 15px rgba(249,115,22,0.2); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Animation Keyframes */
+        @keyframes badge-spring { 0% { transform: scale3d(1, 1, 1); } 40% { transform: scale3d(1.5, 1.5, 1); } 100% { transform: scale3d(1, 1, 1); } }
+        .animate-badge { animation: badge-spring 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 10px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+        .animate-fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; opacity: 0; }
+        .xai-bar-fill { transform-origin: left; will-change: transform; transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* Boot Sequence */
+        #app-root { will-change: transform, filter, opacity; transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+        .app-root-hidden { transform: scale3d(0.982, 0.982, 1) translate3d(0,0,0); filter: blur(6px); opacity: 0; }
+        .app-root-visible { transform: scale3d(1, 1, 1) translate3d(0,0,0); filter: blur(0); opacity: 1; }
+        #boot-veil { transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1); will-change: opacity; }
+        .veil-hidden { opacity: 0 !important; pointer-events: none; }
+        .aperture-pulse { animation: aperture-pulse-anim 1.1s cubic-bezier(0.4, 0, 0.6, 1) forwards; will-change: transform, box-shadow; }
+        @keyframes aperture-pulse-anim { 0% { transform: scale3d(0.9, 0.9, 1); opacity: 0.8; box-shadow: 0 0 10px rgba(6,182,212,0.3); } 40% { transform: scale3d(1.05, 1.05, 1); opacity: 1; box-shadow: 0 0 25px rgba(6,182,212,0.7); } 100% { transform: scale3d(1, 1, 1); opacity: 1; box-shadow: 0 0 15px rgba(6,182,212,0.4); } }
+        #aperture { transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity, filter; }
+        .aperture-expand { transform: scale3d(2.5, 2.5, 1) !important; opacity: 0 !important; filter: blur(12px) !important; }
+        
+        /* Chat UI & JSON Highlights */
+        .chat-memo-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 0.75rem; padding: 1.25rem; color: #CBD5E1; font-size: 0.875rem; line-height: 1.6; }
+        .chat-memo-card.user { background: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.2); padding: 1rem 1.25rem; }
+        .json-key { color: #94A3B8; } .json-string { color: #10B981; } .json-number { color: #06B6D4; } .json-boolean { color: #F59E0B; } .json-null { color: #EF4444; } 
+        .mob-nav-btn.active { color: #06B6D4; } .mob-nav-btn.active span:last-child { color: #fff; font-weight: 700; }
+    </style>
+</head>
+<body class="h-screen w-screen box-border selection:bg-brandCyan selection:text-white relative">
+
+   <!-- GLOBAL SIREN BANNER -->
+    <div id="siren-banner" class="fixed top-0 left-0 w-full bg-brandRed text-white z-[10001] flex items-center justify-center p-3">
+        <div class="flex items-center gap-4 font-mono font-bold tracking-widest text-xs md:text-sm uppercase">
+            <span class="animate-pulse">🚨</span>
+            <span id="siren-banner-text">GENERAL EVACUATION ALERT ACTIVE FOR SECTOR 4</span>
+            <span class="animate-pulse">🚨</span>
+        </div>
+    </div>
+
+    <!-- GPS DENIED/TIMEOUT BANNER -->
+    <div id="gps-banner" class="fixed top-0 left-0 w-full bg-brandAmber text-slate-900 z-[10002] flex items-center justify-center p-2">
+        <div class="flex items-center gap-3 font-mono font-bold tracking-widest text-[10px] md:text-xs uppercase">
+            <span class="text-base">⚠️</span>
+            [GPS PERMISSION REQUIRED FOR LIVE TELEMETRY]
+        </div>
+    </div>
+
+    <!-- BULLETPROOF BOOT FAILSAFE -->
+    <script>
+        setTimeout(() => {
+            const veil = document.getElementById('boot-veil');
+            if (veil) { veil.style.opacity = '0'; veil.style.pointerEvents = 'none'; setTimeout(() => { if(veil) veil.style.display = 'none'; }, 600); }
+        }, 2200);
+    </script>
+
+    <!-- BOOT SEQUENCE VEIL -->
+    <div id="boot-veil" class="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-[#07090e] gpu-layer">
+        <div id="aperture" class="w-[32px] h-[32px] rounded-full border-[0.5px] border-brandCyan/80 shadow-[0_0_15px_rgba(6,182,212,0.4)] aperture-pulse"></div>
+        <div id="boot-text" class="mt-6 font-mono text-[10px] text-slate-400 tracking-[0.25em] h-4 text-center px-4 w-full"></div>
+    </div>
+
+    <!-- CDM INSPECTOR MODAL -->
+    <div id="cdm-modal" class="fixed inset-0 z-[10000] hidden flex-col items-center justify-center bg-[#07090e]/90 backdrop-blur-md gpu-layer px-4 pointer-events-auto">
+        <div class="obsidian-glass rounded-2xl p-6 md:p-8 flex flex-col w-full max-w-2xl shadow-[0_0_40px_rgba(6,182,212,0.15)] relative">
+            <button onclick="closeCdmModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors focus:outline-none">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-2xl">⚙</span>
+                <div>
+                    <h3 class="text-brandCyan font-mono font-bold tracking-widest text-sm uppercase">Unified Hazard Schema</h3>
+                    <p class="text-slate-400 text-xs font-mono">FALCON_CDM_v2.5 Polymorphic Engine</p>
+                </div>
+            </div>
+            
+            <div class="w-full bg-black/60 p-4 md:p-6 rounded-lg border border-white/5 overflow-x-auto shadow-inner mb-6 relative group" style="max-height: 50vh;">
+                <button onclick="copyCdmJson()" class="absolute top-2 right-2 bg-white/10 hover:bg-white/20 text-white text-[10px] font-mono px-3 py-1 rounded transition-colors opacity-0 group-hover:opacity-100 focus:outline-none">[ COPY ]</button>
+                <pre id="cdm-json-content" class="text-left font-mono text-[10px] md:text-xs leading-relaxed text-slate-300"></pre>
+            </div>
+            <div class="flex justify-end gap-4">
+                <button onclick="copyCdmJson()" class="spring-interactive-subtle bg-brandCyan/20 hover:bg-brandCyan/30 text-brandCyan font-mono text-xs px-6 py-3 rounded-lg border border-brandCyan/30 transition-all uppercase tracking-widest min-h-[44px] focus:outline-none">[ COPY JSON ]</button>
+                <button onclick="closeCdmModal()" class="spring-interactive-subtle bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 font-bold font-mono text-xs px-6 py-3 rounded-lg transition-all uppercase tracking-widest min-h-[44px] focus:outline-none">[ CLOSE ]</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VEHICLE TACTICAL STATUS MODAL -->
+    <div id="vehicle-modal" class="fixed inset-0 z-[10000] hidden flex-col items-center justify-center bg-[#07090e]/90 backdrop-blur-md gpu-layer px-4 pointer-events-auto">
+        <div class="obsidian-glass rounded-2xl p-6 md:p-8 flex flex-col w-full max-w-sm shadow-[0_0_40px_rgba(16,185,129,0.15)] relative" id="vehicle-modal-container">
+            <button onclick="closeVehicleModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors focus:outline-none">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            <div class="mb-6">
+                <span id="veh-badge" class="bg-brandCyan/10 border border-brandCyan/30 text-brandCyan font-mono text-[10px] tracking-widest font-semibold px-3 py-1.5 rounded-full mb-3 inline-block shadow-[0_0_10px_rgba(6,182,212,0.2)]">UNIT STATUS</span>
+                <h3 class="text-white font-light text-xl tracking-tight mb-1" id="veh-title">UNIT 01</h3>
+                <p class="text-slate-400 text-xs font-mono tracking-widest" id="veh-type">ASSET DEPLOYMENT</p>
+            </div>
+            
+            <div class="space-y-4 font-mono text-[10px] mb-6 border-t border-white/10 pt-4">
+                <div>
+                    <div class="flex justify-between text-slate-400 mb-1.5 uppercase tracking-widest"><span>Readiness / Fuel</span><span id="veh-fuel-val" class="text-white font-semibold">78%</span></div>
+                    <div class="w-full bg-black/40 h-1.5 rounded-full overflow-hidden shadow-inner"><div id="veh-fuel-bar" class="bg-brandCyan h-full shadow-[0_0_8px_rgba(6,182,212,0.8)]" style="width: 78%;"></div></div>
+                </div>
+                <div class="flex justify-between items-center text-slate-300">
+                    <span class="uppercase tracking-widest text-slate-400">Personnel / Crew</span>
+                    <span id="veh-crew" class="font-bold">6</span>
+                </div>
+                <div class="flex justify-between items-center text-slate-300">
+                    <span class="uppercase tracking-widest text-slate-400">Active Target</span>
+                    <span id="veh-target" class="font-bold text-brandRed">SECTOR 4</span>
+                </div>
+            </div>
+
+            <button onclick="closeVehicleModal()" class="w-full spring-interactive-subtle bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 font-bold font-mono text-xs px-6 py-3 rounded-xl transition-all uppercase tracking-widest min-h-[44px] focus:outline-none">[ CLOSE LINK ]</button>
+        </div>
+    </div>
+
+    <!-- XAI EXPLAINABILITY MODAL -->
+    <div id="xai-modal" class="fixed inset-0 z-[10000] hidden flex-col items-center justify-center bg-[#07090e]/90 backdrop-blur-md gpu-layer px-4 pointer-events-auto">
+        <div class="obsidian-glass rounded-2xl p-6 md:p-8 flex flex-col w-full max-w-lg shadow-[0_0_40px_rgba(239,68,68,0.15)] relative" id="xai-modal-container">
+            <button onclick="closeXaiModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors focus:outline-none">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 class="text-white font-light text-xl tracking-tight mb-1" id="xai-title">RISK CLASSIFICATION AUDIT</h3>
+                    <p class="text-slate-400 text-xs font-mono tracking-widest" id="xai-subtitle">SECTOR ANALYSIS ACTIVE</p>
+                </div>
+                <span id="xai-badge" class="bg-brandRed/10 border border-brandRed/30 text-brandRed font-mono text-[10px] tracking-widest font-semibold px-3 py-1.5 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.2)]">CRITICAL</span>
+            </div>
+            
+            <div class="space-y-5 font-mono text-[10px] mb-6">
+                <div>
+                    <div class="flex justify-between text-slate-400 mb-2 uppercase tracking-widest"><span id="xai-label-1">Hazard Factor</span><span id="xai-val-1" class="text-white font-semibold">0%</span></div>
+                    <div class="w-full bg-black/40 h-1.5 rounded-full overflow-hidden shadow-inner"><div id="xai-bar-1" class="bg-brandRed h-full xai-bar-fill" style="transform: scale3d(0,1,1);"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-slate-400 mb-2 uppercase tracking-widest"><span id="xai-label-2">Structural Vulnerability</span><span id="xai-val-2" class="text-white font-semibold">0%</span></div>
+                    <div class="w-full bg-black/40 h-1.5 rounded-full overflow-hidden shadow-inner"><div id="xai-bar-2" class="bg-brandOrange h-full xai-bar-fill" style="transform: scale3d(0,1,1);"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-slate-400 mb-2 uppercase tracking-widest"><span id="xai-label-3">Demographic Exposure</span><span id="xai-val-3" class="text-white font-semibold">0%</span></div>
+                    <div class="w-full bg-black/40 h-1.5 rounded-full overflow-hidden shadow-inner"><div id="xai-bar-3" class="bg-brandAmber h-full xai-bar-fill" style="transform: scale3d(0,1,1);"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-slate-400 mb-2 uppercase tracking-widest"><span id="xai-label-4">Critical Infra Threat</span><span id="xai-val-4" class="text-white font-semibold">0%</span></div>
+                    <div class="w-full bg-black/40 h-1.5 rounded-full overflow-hidden shadow-inner"><div id="xai-bar-4" class="bg-brandCyan h-full xai-bar-fill" style="transform: scale3d(0,1,1);"></div></div>
+                </div>
+            </div>
+
+            <div class="bg-black/40 border border-white/5 p-4 rounded-lg mb-6 shadow-inner">
+                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Automated Action Directive</span>
+                <span id="xai-directive" class="text-slate-200 text-xs leading-relaxed font-medium">Awaiting directive generation...</span>
+            </div>
+
+            <button onclick="closeXaiModal()" class="w-full spring-interactive-subtle bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 font-bold font-mono text-xs px-6 py-4 rounded-xl transition-all uppercase tracking-widest min-h-[44px] focus:outline-none">[ CLOSE PANEL ]</button>
+        </div>
+    </div>
+
+    <!-- DESKTOP OFFLINE MODAL FALLBACK / TACTICAL HUD QUEUE -->
+    <div id="gsm-modal-desktop" class="fixed inset-0 z-[10000] hidden flex-col items-center justify-center bg-[#07090e]/90 backdrop-blur-md gpu-layer px-4">
+        <div class="obsidian-glass rounded-2xl p-8 flex flex-col items-center border border-brandCyan/50 shadow-[0_0_30px_rgba(6,182,212,0.2)] max-w-lg text-center w-full">
+            <span class="text-4xl mb-4 animate-pulse">📡</span>
+            <h3 id="desktop-sms-title" class="text-brandCyan font-mono font-bold tracking-widest text-sm mb-2 uppercase">TACTICAL DISPATCH HUD // SOS QUEUED</h3>
+            <p id="desktop-sms-desc" class="text-slate-300 text-xs font-medium tracking-wide mb-4">TARGET: SECURE COMMAND GRID</p>
+            <div class="w-full bg-black/50 p-4 rounded-lg border border-white/5 mb-6 text-left break-all shadow-inner">
+                <span id="desktop-sms-payload" class="text-brandCyan font-mono text-[10px]">FALCON//SOS#LAT:WAITING#LON:WAITING#HAZARD:FLASH_FLOOD#SOULS:4#TIME:IST</span>
+            </div>
+            <div class="flex gap-4 w-full flex-col sm:flex-row">
+                <button onclick="dismissGsmModal()" class="flex-1 spring-interactive bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 font-bold text-xs py-4 rounded-xl transition-all uppercase min-h-[44px] focus:outline-none">DISMISS MODAL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP ROOT -->
+    <div id="app-root" class="w-full h-full flex flex-col app-root-hidden gpu-layer">
+        
+        <!-- 1. TOP APEX BAR -->
+        <header class="h-16 glass-header border-b border-white/5 flex items-center justify-between px-4 md:px-8 flex-shrink-0 z-50 gpu-layer">
+            <div class="flex items-center gap-3 md:gap-5">
+                <div class="flex h-2.5 w-2.5 relative items-center justify-center">
+                    <span class="absolute inline-flex h-full w-full rounded-full bg-brandGreen opacity-60 animate-organic-breathe"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brandGreen shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                </div>
+                <h1 class="text-xs md:text-sm font-semibold tracking-[0.2em] text-slate-100 uppercase flex items-center">
+                    Falcon EDSS <span class="hidden sm:inline text-slate-500 font-light ml-2 tracking-[0.1em]">// Disaster Response</span>
+                </h1>
+            </div>
+
+            <div class="flex items-center gap-4 md:gap-8">
+                <div class="flex flex-col text-right">
+                    <span class="text-[8px] md:text-[9px] text-slate-500 font-semibold tracking-widest uppercase mb-0.5">System Time (IST)</span>
+                    <span class="font-mono text-[10px] md:text-xs text-slate-300 tracking-wider" id="clock">00:00:00</span>
+                </div>
+                <div class="h-8 w-px bg-white/10"></div>
+                <div class="flex flex-col text-right">
+                    <span class="text-[8px] md:text-[9px] text-slate-500 font-semibold tracking-widest uppercase mb-0.5">Incident Grid</span>
+                    <div class="flex items-center gap-1.5 md:gap-2 justify-end mt-0.5">
+                        <div class="w-1.5 h-1.5 rounded-full border-[1px] border-brandGreen shadow-[0_0_6px_rgba(16,185,129,0.5)]"></div>
+                        <span class="font-mono text-[8px] md:text-[10px] text-brandGreen font-medium tracking-widest uppercase">Active Surv</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="flex-1 flex overflow-hidden">
+            
+            <!-- 2. LEFT SIDEBAR (DESKTOP) -->
+            <aside class="w-72 border-r border-white/5 bg-transparent hidden md:flex flex-col justify-between flex-shrink-0 z-40 backdrop-blur-sm">
+                <nav class="p-5 flex flex-col gap-3 mt-4">
+                    <button onclick="switchTab('sos')" id="nav-sos" class="nav-btn spring-interactive-subtle w-full flex items-center gap-4 px-5 py-4 rounded-xl obsidian-glass text-white text-left gpu-layer min-h-[44px] focus:outline-none">
+                        <span class="text-lg opacity-80">📢</span>
+                        <span class="font-medium tracking-wide text-sm">Citizen SOS</span>
+                    </button>
+                    
+                    <button onclick="switchTab('triage')" id="nav-triage" class="nav-btn spring-interactive-subtle w-full flex items-center justify-between px-5 py-4 rounded-xl text-slate-400 hover:bg-white/5 hover:text-slate-200 text-left border border-transparent gpu-layer min-h-[44px] focus:outline-none">
+                        <div class="flex items-center gap-4">
+                            <span class="text-lg opacity-80">📊</span>
+                            <span class="font-medium tracking-wide text-sm">Command Triage</span>
+                        </div>
+                        <span id="triage-badge" class="bg-brandRed text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.4)]">4</span>
+                    </button>
+                    
+                    <button onclick="switchTab('map')" id="nav-map" class="nav-btn spring-interactive-subtle w-full flex items-center gap-4 px-5 py-4 rounded-xl text-slate-400 hover:bg-white/5 hover:text-slate-200 text-left border border-transparent gpu-layer min-h-[44px] focus:outline-none">
+                        <span class="text-lg opacity-80">🗺️</span>
+                        <span class="font-medium tracking-wide text-sm">Tactical Radar</span>
+                    </button>
+
+                    <button onclick="switchTab('advisory')" id="nav-advisory" class="nav-btn spring-interactive-subtle w-full flex items-center gap-4 px-5 py-4 rounded-xl text-slate-400 hover:bg-white/5 hover:text-slate-200 text-left border border-transparent gpu-layer mt-2 min-h-[44px] focus:outline-none">
+                        <span class="text-lg opacity-80">💠</span>
+                        <span class="font-medium tracking-wide text-sm">Falcon Advisory</span>
+                    </button>
+                </nav>
+
+                <div class="p-6 mb-2 mx-5 text-center font-mono text-[10px] text-slate-600 tracking-[0.1em] uppercase select-none gpu-layer">
+                    FALCON // PROTOCOL v2.5
+                </div>
+            </aside>
+
+            <!-- 3. TAB CONTENT VIEWS -->
+            <section class="flex-1 overflow-y-auto relative z-10 pb-36 md:pb-0">
+                
+                <!-- TAB 1: CITIZEN SOS -->
+                <div id="tab-sos" class="tab-content max-w-3xl mx-auto p-4 md:p-10 md:pt-16">
+                    <div class="mb-8 md:mb-10 text-center gpu-layer">
+                        <h2 class="text-2xl md:text-3xl font-light text-white tracking-tight mb-2 md:mb-3">Broadcast Distress Signal</h2>
+                        <p class="text-slate-400 text-xs md:text-sm font-light tracking-wide">Secure emergency payload interface. 3-Step Triage Protocol.</p>
+                    </div>
+
+                    <!-- STEP 1: PRIORITY -->
+                    <div class="obsidian-glass cinematic-hover rounded-2xl p-6 md:p-8 mb-6 gpu-layer">
+                        <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 text-center">Step 1: Priority Selection</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <button onclick="setSosPriority('CRITICAL')" id="btn-pri-critical" class="sos-pri-btn cinematic-hover border border-brandRed bg-brandRed/20 shadow-[0_0_15px_rgba(239,68,68,0.3)] rounded-xl p-4 flex flex-col items-center justify-center gap-2 focus:outline-none transition-all">
+                                <span class="text-2xl">🔴</span>
+                                <span class="font-semibold text-white text-sm tracking-wide">CRITICAL</span>
+                                <span class="text-[9px] text-slate-300 font-medium">Immediate Life Threat</span>
+                            </button>
+                            <button onclick="setSosPriority('HIGH')" id="btn-pri-high" class="sos-pri-btn cinematic-hover border border-white/10 bg-white/5 rounded-xl p-4 flex flex-col items-center justify-center gap-2 focus:outline-none transition-all">
+                                <span class="text-2xl">🟠</span>
+                                <span class="font-semibold text-white text-sm tracking-wide">HIGH</span>
+                                <span class="text-[9px] text-slate-300 font-medium">Trapped / Rising Danger</span>
+                            </button>
+                            <button onclick="setSosPriority('ADVISORY')" id="btn-pri-advisory" class="sos-pri-btn cinematic-hover border border-white/10 bg-white/5 rounded-xl p-4 flex flex-col items-center justify-center gap-2 focus:outline-none transition-all">
+                                <span class="text-2xl">🟡</span>
+                                <span class="font-semibold text-white text-sm tracking-wide">ADVISORY</span>
+                                <span class="text-[9px] text-slate-300 font-medium">Evacuation Request</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: HAZARD CATEGORY -->
+                    <div class="obsidian-glass cinematic-hover rounded-2xl p-6 md:p-8 mb-6 gpu-layer">
+                        <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 text-center">Step 2: Incident Category</h3>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
+                            <button onclick="setSosHazard('flood', 'FLOOD / RISING WATER')" id="btn-haz-flood" class="sos-haz-btn cinematic-hover border border-brandCyan bg-brandCyan/20 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)] rounded-lg p-3 text-xs md:text-sm font-medium tracking-wide flex items-center gap-2 focus:outline-none transition-all">🌊 Flood / Water</button>
+                            <button onclick="setSosHazard('cyclone', 'CYCLONE / ROOF COLLAPSE')" id="btn-haz-cyclone" class="sos-haz-btn cinematic-hover border border-white/10 bg-white/5 text-slate-400 rounded-lg p-3 text-xs md:text-sm font-medium tracking-wide flex items-center gap-2 focus:outline-none transition-all">🌀 Cyclone / Wind</button>
+                            <button onclick="setSosHazard('lightning', 'LIGHTNING / FIRE / POWER')" id="btn-haz-lightning" class="sos-haz-btn cinematic-hover border border-white/10 bg-white/5 text-slate-400 rounded-lg p-3 text-xs md:text-sm font-medium tracking-wide flex items-center gap-2 focus:outline-none transition-all">⚡ Lightning / Fire</button>
+                            <button onclick="setSosHazard('landslide', 'LANDSLIDE / ROAD BLOCKED')" id="btn-haz-landslide" class="sos-haz-btn cinematic-hover border border-white/10 bg-white/5 text-slate-400 rounded-lg p-3 text-xs md:text-sm font-medium tracking-wide flex items-center gap-2 focus:outline-none transition-all">⛰️ Landslide / Road</button>
+                            <button onclick="setSosHazard('heat', 'HEATSTROKE / DEHYDRATION')" id="btn-haz-heat" class="sos-haz-btn cinematic-hover border border-white/10 bg-white/5 text-slate-400 rounded-lg p-3 text-xs md:text-sm font-medium tracking-wide flex items-center gap-2 focus:outline-none transition-all">☀️ Heatstroke</button>
+                            <button onclick="setSosHazard('medical', 'MEDICAL / CASUALTY')" id="btn-haz-medical" class="sos-haz-btn cinematic-hover border border-white/10 bg-white/5 text-slate-400 rounded-lg p-3 text-xs md:text-sm font-medium tracking-wide flex items-center gap-2 focus:outline-none transition-all">🚑 Medical Casualty</button>
+                        </div>
+
+                        <div class="flex items-center justify-between border-t border-white/5 pt-5">
+                            <label class="block text-[10px] md:text-xs font-semibold text-slate-300 uppercase tracking-widest flex items-center gap-2"><span>👥</span> Souls at Risk</label>
+                            <div class="flex items-center gap-4 bg-black/40 rounded-lg border border-white/10 p-1">
+                                <button onclick="adjustSouls(-1)" class="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded text-white text-lg focus:outline-none transition-colors">-</button>
+                                <span id="sos-souls-display" class="font-mono text-sm md:text-base text-brandCyan font-bold w-6 text-center">1</span>
+                                <button onclick="adjustSouls(1)" class="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded text-white text-lg focus:outline-none transition-colors">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: TRANSMIT -->
+                    <div class="obsidian-glass cinematic-hover rounded-2xl p-6 md:p-8 gpu-layer flex flex-col items-center">
+                        <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 text-center">Step 3: Instant Transmit</h3>
+                        
+                        <div class="w-full bg-black/40 rounded-lg border border-white/5 p-4 mb-6 flex items-center justify-between">
+                            <span class="text-[10px] font-mono tracking-widest text-slate-400 uppercase">GPS Anchor</span>
+                            <span id="sos-location-display" class="text-[10px] md:text-xs font-mono font-bold text-brandGreen flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 bg-brandGreen rounded-full animate-pulse"></div> Acquiring...
+                            </span>
+                        </div>
+
+                        <button id="btn-transmit" class="w-full cinematic-hover bg-brandRed text-white font-bold tracking-widest text-sm md:text-base py-5 rounded-xl flex justify-center items-center gap-3 border border-brandRed shadow-[0_0_30px_rgba(239,68,68,0.4),inset_0_1px_1px_rgba(255,255,255,0.4)] focus:outline-none transition-transform active:scale-95">
+                            <span class="text-xl animate-pulse">🚨</span> TRANSMIT EMERGENCY SOS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB 2: COMMAND TRIAGE -->
+                <div id="tab-triage" class="tab-content hidden max-w-6xl mx-auto p-4 md:p-10 md:pt-6">
+                    
+                    <!-- TACTICAL MULTI-HAZARD SELECTOR -->
+                    <div class="flex gap-2 overflow-x-auto pb-4 mb-6 hide-scrollbar w-full border-b border-white/5" id="triage-hazard-selector">
+                        <!-- INJECTED DYNAMICALLY BY JS -->
+                    </div>
+
+                    <div class="mb-8 md:mb-8 text-center gpu-layer">
+                        <h2 class="text-2xl md:text-3xl font-light text-white tracking-tight mb-2 md:mb-3">Command Triage & Dispatch</h2>
+                        <p class="text-slate-400 text-xs md:text-sm font-light tracking-wide">Live Authority HUD and algorithmic risk evaluation.</p>
+                    </div>
+
+                    <!-- AUTHORITY RAPID-ACTION DISPATCH BAR -->
+                    <div class="flex flex-wrap md:flex-nowrap gap-4 mb-8 gpu-layer" id="dispatch-bar-container">
+                        <button onclick="triggerSiren()" class="flex-1 spring-interactive-subtle bg-brandRed/20 hover:bg-brandRed/30 text-brandRed border border-brandRed/40 font-bold font-mono text-xs px-4 py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(239,68,68,0.15)] uppercase tracking-widest min-h-[44px] focus:outline-none flex items-center justify-center gap-2">
+                            <span class="text-base">🚨</span> BROADCAST SIREN
+                        </button>
+                        <button onclick="rerouteAssets()" class="flex-1 spring-interactive-subtle bg-brandCyan/20 hover:bg-brandCyan/30 text-brandCyan border border-brandCyan/40 font-bold font-mono text-xs px-4 py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] uppercase tracking-widest min-h-[44px] focus:outline-none flex items-center justify-center gap-2" id="dispatch-btn-reroute">
+                            <span class="text-base">🔄</span> RE-ROUTE ASSETS
+                        </button>
+                        <button onclick="exportSitRep()" class="flex-1 spring-interactive-subtle bg-white/10 hover:bg-white/20 text-slate-200 border border-white/20 font-bold font-mono text-xs px-4 py-4 rounded-xl transition-all uppercase tracking-widest min-h-[44px] focus:outline-none flex items-center justify-center gap-2">
+                            <span class="text-base">📄</span> EXPORT SITREP
+                        </button>
+                    </div>
+
+                    <!-- LIVE OPERATIONAL SITUATION DASHBOARD (HUD) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 gpu-layer" id="triage-hud-container">
+                        <!-- INJECTED DYNAMICALLY BY JS -->
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-6 md:gap-8">
+                        <!-- Explainability Card -->
+                        <div class="obsidian-glass cinematic-hover rounded-2xl p-6 md:p-8 flex flex-col gpu-layer">
+                            <div class="flex justify-between items-start mb-6">
+                                <span class="bg-brandRed/10 border border-brandRed/30 text-brandRed font-mono text-[10px] tracking-widest font-semibold px-3 py-1.5 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.2)]">CRITICAL: SECTOR 4 <span class="opacity-60 ml-1">0.88</span></span>
+                            </div>
+                            <p class="text-xs md:text-sm text-slate-300 font-light leading-relaxed mb-8 border-l border-brandRed pl-4" id="xai-triage-desc">
+                                Embankment structural failure detected. Topographical elevation intersects critically with localized population density (4,200/km²).
+                            </p>
+                            
+                            <div class="space-y-5 font-mono text-[10px] mt-auto">
+                                <div>
+                                    <div class="flex justify-between text-slate-400 mb-2 uppercase tracking-widest"><span id="xai-triage-label-1">Elevation Depth</span><span class="text-brandCyan font-semibold">35%</span></div>
+                                    <div class="w-full bg-black/40 h-1 rounded-full overflow-hidden shadow-inner"><div class="bg-brandCyan h-full shadow-[0_0_8px_rgba(6,182,212,0.8)]" style="width: 35%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-slate-400 mb-2 uppercase tracking-widest"><span id="xai-triage-label-2">Hydrological Proximity</span><span class="text-brandAmber font-semibold">30%</span></div>
+                                    <div class="w-full bg-black/40 h-1 rounded-full overflow-hidden shadow-inner"><div class="bg-brandAmber h-full shadow-[0_0_8px_rgba(245,158,11,0.8)]" style="width: 30%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-slate-400 mb-2 uppercase tracking-widest"><span>Density Saturation</span><span class="text-slate-300 font-semibold">20%</span></div>
+                                    <div class="w-full bg-black/40 h-1 rounded-full overflow-hidden shadow-inner"><div class="bg-slate-400 h-full" style="width: 20%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-slate-400 mb-2 uppercase tracking-widest"><span>Historical Index</span><span class="text-slate-300 font-semibold">15%</span></div>
+                                    <div class="w-full bg-black/40 h-1 rounded-full overflow-hidden shadow-inner"><div class="bg-slate-400 h-full" style="width: 15%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shelters & Resource Matrix -->
+                        <div class="flex flex-col gap-6 md:gap-8">
+                            <div class="obsidian-glass cinematic-hover rounded-2xl p-6 md:p-8 gpu-layer">
+                                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-6" id="shelter-title">Capacity Utilization</h3>
+                                <div class="space-y-6">
+                                    <div>
+                                        <div class="flex justify-between items-baseline mb-2">
+                                            <span class="text-slate-200 font-medium text-xs md:text-sm tracking-wide">Alpha Zone <span class="hidden sm:inline text-slate-500 font-light text-xs ml-2">Primary Node</span></span>
+                                            <span class="text-slate-400 font-mono text-[10px] tracking-widest">180/300 <span class="text-brandGreen font-bold ml-2">60%</span></span>
+                                        </div>
+                                        <div class="w-full bg-black/40 rounded-full h-1.5 shadow-inner">
+                                            <div class="bg-brandGreen h-full rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]" style="width: 60%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between items-baseline mb-2">
+                                            <span class="text-slate-200 font-medium text-xs md:text-sm tracking-wide">Beta Zone <span class="hidden sm:inline text-slate-500 font-light text-xs ml-2">Secondary Node</span></span>
+                                            <span class="text-slate-400 font-mono text-[10px] tracking-widest">45/500 <span class="text-brandCyan font-bold ml-2">09%</span></span>
+                                        </div>
+                                        <div class="w-full bg-black/40 rounded-full h-1.5 shadow-inner">
+                                            <div class="bg-brandCyan h-full rounded-full shadow-[0_0_8px_rgba(6,182,212,0.8)]" style="width: 9%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resource Readiness Matrix -->
+                            <div class="obsidian-glass cinematic-hover rounded-2xl p-6 md:p-8 gpu-layer mt-2 md:mt-0">
+                                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Resource Deployment Matrix</h3>
+                                <div class="space-y-3 font-mono text-[10px] md:text-xs text-slate-300" id="triage-resources-container">
+                                    <!-- INJECTED DYNAMICALLY BY JS -->
+                                </div>
+                                <button onclick="allocateSector4()" class="w-full cinematic-hover bg-brandCyan/90 text-slate-900 font-semibold tracking-widest text-xs md:text-sm py-4 rounded-xl border border-brandCyan border-t-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.3)] mt-6 gpu-layer min-h-[44px] focus:outline-none" id="btn-allocate">
+                                    [ ALLOCATE TO SECTOR 4 ]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: TACTICAL RADAR MAP -->
+                <div id="tab-map" class="tab-content hidden h-full w-full relative">
+                    
+                    <!-- TACTICAL MULTI-HAZARD SELECTOR (OVER MAP) -->
+                    <div class="absolute top-4 left-1/2 -translate-x-1/2 z-[500] w-[90%] max-w-2xl bg-[#07090e]/80 backdrop-blur-md border border-white/10 rounded-full px-2 py-2 flex gap-2 overflow-x-auto hide-scrollbar shadow-[0_10px_30px_rgba(0,0,0,0.8)]" id="map-hazard-selector">
+                        <!-- INJECTED DYNAMICALLY TO SYNC -->
+                    </div>
+
+                    <div id="map-container" class="w-full h-full border-t border-white/5 mt-0"></div>
+                    
+                    <div class="absolute top-20 left-4 md:left-6 z-[400] obsidian-glass cinematic-hover px-4 py-3 md:px-5 md:py-4 rounded-xl flex flex-col gap-2 md:gap-3 pointer-events-none gpu-layer" id="map-legend">
+                        <!-- INJECTED DYNAMICALLY -->
+                    </div>
+
+                    <!-- HAZARD INGESTION HUD -->
+                    <div class="absolute bottom-[85px] right-4 left-4 md:bottom-auto md:top-20 md:right-6 md:left-auto md:w-[360px] z-[400] obsidian-glass cinematic-hover p-3 md:p-5 rounded-xl flex flex-col gap-2 md:gap-4 gpu-layer pointer-events-auto shadow-2xl max-h-[220px] md:max-h-none overflow-y-auto hide-scrollbar">
+                        <div class="flex items-center justify-between border-b border-white/5 pb-2 md:pb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 bg-brandGreen rounded-full animate-organic-breathe" id="hud-pulse-dot"></div>
+                                <span class="text-[9px] md:text-[10px] font-mono font-bold tracking-widest text-slate-300 uppercase">Hazard Ingestion Pipeline</span>
+                            </div>
+                            <span class="text-[8px] font-mono text-brandCyan bg-brandCyan/10 px-1.5 py-0.5 rounded uppercase border border-brandCyan/30" id="cdm-active-badge">CDM Active</span>
+                        </div>
+
+                        <div class="flex flex-col gap-4" id="map-telemetry-container">
+                            <!-- INJECTED DYNAMICALLY BY JS -->
+                        </div>
+
+                        <button onclick="forceSyncGPS()" class="mt-2 spring-interactive-subtle w-full py-2 bg-brandCyan/20 hover:bg-brandCyan/30 text-brandCyan text-[9px] font-mono font-bold tracking-[0.1em] uppercase border border-brandCyan/30 rounded-lg transition-all focus:outline-none flex justify-center items-center gap-2 shadow-inner">
+                            <span class="animate-pulse">📍</span> [ RE-SYNC DEVICE GPS ]
+                        </button>
+                        <button onclick="openCdmModal()" class="mt-1 spring-interactive-subtle w-full py-2 bg-white/5 hover:bg-white/10 text-white text-[9px] font-mono font-bold tracking-[0.1em] uppercase border border-white/10 rounded-lg transition-all shadow-inner focus:outline-none min-h-[44px]">
+                            [ VIEW NORMALIZED CDM SCHEMA (JSON) ]
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB 4: FALCON ADVISORY -->
+                <div id="tab-advisory" class="tab-content hidden max-w-4xl mx-auto p-4 md:p-10 md:pt-16 flex flex-col h-full">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4 gpu-layer">
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-light text-white tracking-tight mb-2">Tactical Crisis Advisory</h2>
+                            <p class="text-slate-400 text-xs md:text-sm font-light tracking-wide">Real-time survival protocols, emergency guidance, and immediate hazard response.</p>
+                        </div>
+                        <div id="advisory-status" class="flex items-center gap-2 px-3 py-1.5 bg-brandGreen/10 border border-brandGreen/30 rounded-full font-mono text-[9px] text-brandGreen uppercase tracking-widest shadow-[0_0_10px_rgba(16,185,129,0.1)] transition-all duration-300 whitespace-nowrap">
+                            <div id="advisory-status-dot" class="w-1.5 h-1.5 bg-brandGreen rounded-full animate-organic-breathe"></div> 
+                            <span id="advisory-status-text">STATUS: NEURAL ADVISORY ONLINE</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Prompts -->
+                    <div class="flex flex-wrap gap-3 md:gap-4 mb-6 gpu-layer" id="advisory-prompts">
+                        <button onclick="triggerAdvisory('⚡ Floodwater Rising Fast')" class="cinematic-hover spring-interactive-subtle px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs font-semibold tracking-wide bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-600 shadow-sm whitespace-nowrap gpu-layer min-h-[44px] focus:outline-none">⚡ Floodwater Rising Fast</button>
+                        <button onclick="triggerAdvisory('🏥 Emergency First Aid')" class="cinematic-hover spring-interactive-subtle px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs font-semibold tracking-wide bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-600 shadow-sm whitespace-nowrap gpu-layer min-h-[44px] focus:outline-none">🏥 Emergency First Aid</button>
+                        <button onclick="triggerAdvisory('⚠️ Downed Power Lines')" class="cinematic-hover spring-interactive-subtle px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs font-semibold tracking-wide bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-600 shadow-sm whitespace-nowrap gpu-layer min-h-[44px] focus:outline-none">⚠️ Downed Power Lines</button>
+                    </div>
+
+                    <!-- Conversation Stage -->
+                    <div id="advisory-chat-stage" class="obsidian-glass cinematic-hover rounded-2xl p-4 md:p-6 mb-4 md:mb-6 flex-1 overflow-y-auto flex flex-col gap-4 md:gap-5 gpu-layer" style="max-height: calc(100vh - 360px);">
+                        <div class="chat-memo-card max-w-[90%] md:max-w-[85%] self-start gpu-layer">
+                            <div class="flex items-center gap-2 mb-3 md:mb-4 border-b border-white/5 pb-2 md:pb-3">
+                                <span class="text-brandCyan text-[9px] md:text-[10px] font-mono font-bold tracking-widest uppercase" id="advisory-welcome-title">// Falcon Advisory Protocol:</span>
+                            </div>
+                            <span class="text-slate-200 text-xs md:text-sm leading-relaxed" id="advisory-welcome-text">Neural advisory systems initialized. Select a tactical vector above or input specific emergency parameters below to receive authorized NDRF-grade crisis protocols.</span>
+                        </div>
+                    </div>
+
+                    <!-- Input Dock -->
+                    <div class="obsidian-glass cinematic-hover rounded-2xl p-3 md:p-4 flex flex-col sm:flex-row gap-3 md:gap-4 gpu-layer flex-shrink-0">
+                        <div class="input-container flex-1 flex items-center min-h-[44px]">
+                            <input type="text" id="advisory-input" placeholder="Describe situation or ask protocol..." class="text-xs md:text-sm font-medium tracking-wide w-full" onkeypress="handleAdvisoryEnter(event)">
+                            <div class="input-laser"></div>
+                        </div>
+                        <button onclick="submitAdvisoryQuery()" class="spring-interactive bg-white/10 hover:bg-white/15 text-white font-semibold tracking-widest text-xs px-6 py-3 rounded-xl border border-white/20 shadow-inner min-h-[44px] focus:outline-none">
+                            REQUEST
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+        
+        <!-- MOBILE BOTTOM NAV -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 h-[72px] pb-safe obsidian-glass z-[500] flex justify-around items-center px-1 border-t border-white/10 gpu-layer rounded-t-xl">
+            <button onclick="switchTab('sos')" id="mob-nav-sos" class="mob-nav-btn active flex flex-col items-center justify-center w-full h-full text-brandCyan transition-colors focus:outline-none">
+                <span class="text-[22px] mb-1 leading-none">📢</span>
+                <span class="text-[9px] font-bold tracking-widest uppercase">SOS</span>
+            </button>
+            <button onclick="switchTab('triage')" id="mob-nav-triage" class="mob-nav-btn flex flex-col items-center justify-center w-full h-full text-slate-500 relative transition-colors focus:outline-none">
+                <span class="text-[22px] mb-1 leading-none">📊</span>
+                <span class="text-[9px] font-medium tracking-widest uppercase">Triage</span>
+                <span id="mob-triage-badge" class="absolute top-1 right-3 bg-brandRed text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.6)]">4</span>
+            </button>
+            <button onclick="switchTab('map')" id="mob-nav-map" class="mob-nav-btn flex flex-col items-center justify-center w-full h-full text-slate-500 transition-colors focus:outline-none">
+                <span class="text-[22px] mb-1 leading-none">🗺️</span>
+                <span class="text-[9px] font-medium tracking-widest uppercase">Radar</span>
+            </button>
+            <button onclick="switchTab('advisory')" id="mob-nav-advisory" class="mob-nav-btn flex flex-col items-center justify-center w-full h-full text-slate-500 transition-colors focus:outline-none">
+                <span class="text-[22px] mb-1 leading-none">💠</span>
+                <span class="text-[9px] font-medium tracking-widest uppercase">Advisor</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Dynamic Island Toast -->
+    <div class="fixed bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
+        <div id="dynamic-island" class="flex items-center gap-4 px-6 py-3 gpu-layer">
+            <div class="w-2 h-2 rounded-full bg-brandGreen shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" id="island-dot"></div>
+            <span class="text-[11px] font-mono tracking-widest text-slate-200 uppercase" id="island-text">Signal Transmitted</span>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- API KEY CONFIGURATION ---
+        const GEMINI_API_KEY = "YOUR_API_KEY_HERE";
+
+        // --- Global Telemetry State ---
+        let currentLat = 0;
+        let currentLon = 0;
+        let isGpsLive = false;
+        
+        let weatherData = { precip: "--", wind: "--", gust: "--", pressure: "--", temp: "--", humidity: "--", cape: "--", soil: "--", status: "AWAITING SYNC" };
+        let triageCount = 18; 
+        
+        let mapInitialized = false;
+        let map, tacticalLayers = null;
+
+        // Vehicle Markers State
+        let unitAlphaMarker, unitBetaMarker, unitGammaMarker, userMarker;
+        let boatLat = 0, boatLon = 0;
+        let boatDirLat = -0.0001, boatDirLon = -0.00015;
+
+        // Resource Matrix State
+        let resFleet = { irbAvail: 8, irbDep: 5, alsAvail: 4, alsDep: 2, rat: 2400, trk: 3 };
+
+        // TAB 1 SOS STATE
+        let selectedSosPriority = 'CRITICAL';
+        let selectedSosHazard = 'FLOOD / RISING WATER';
+        let sosSoulsCount = 1;
+
+        // --- POLYMORPHIC HAZARD CONFIGURATION ---
+        let currentHazardMode = 'flood';
+
+        const hazardConfigs = {
+            'flood': {
+                id: 'flood', title: '🌊 FLASH FLOOD', colorClass: 'brandCyan', hex: '#06B6D4',
+                hud1Title: 'METEO/HYDROLOGY', hud1Icon: 'brandCyan',
+                hud3Title: 'TACTICAL ASSETS', hud3Icon: 'brandCyan',
+                prompts: ['⚡ Floodwater Rising Fast', '🏥 Emergency First Aid', '⚠️ Downed Power Lines'],
+                xaiLabels: ['Hazard Factor', 'Structural Vulnerability', 'Demographic Exposure', 'Critical Infra Threat'],
+                assets: [
+                    { name: 'Inflatable Rescue Boats', stat: '5 DEPLOYED / 8 TOTAL', id: 'res-irb' },
+                    { name: 'Advanced Life Support', stat: '2 ACTIVE / 4 TOTAL', id: 'res-als' },
+                    { name: 'Emergency Rations', stat: '2,400 Packets Stocked', id: 'res-rat' },
+                    { name: 'High-Clearance Trucks', stat: '3 Active', id: 'res-trk' }
+                ],
+                vehicles: [
+                    { id: 'alpha', icon: '🚤', color: 'brandCyan', anim: 'animate-pulse-cyan', title: 'NDRF BOAT 01', type: 'AMPHIBIOUS RESCUE', fuel: '78%', crew: '6 (2 MEDICS)', target: 'SECTOR 4' },
+                    { id: 'beta', icon: '🚑', color: 'brandGreen', anim: 'animate-pulse-green', title: 'ALS AMBULANCE 03', type: 'ADVANCED LIFE SUPPORT', fuel: '92%', crew: '3 (1 DOCTOR)', target: 'TRIAGE POST' },
+                    { id: 'gamma', icon: '🚛', color: 'brandAmber', anim: 'animate-pulse-amber', title: 'TACTICAL TRUCK 02', type: 'HEAVY CLEARANCE', fuel: '45%', crew: '8 (ENGINEERS)', target: 'ARTERY 1' }
+                ],
+                cdmClass: "HYDROLOGICAL_FLASH_FLOOD",
+                sop: "NDRF_WATER_RESCUE_ALPHA",
+                mapLegend: [
+                    { icon: '<div class="w-2 h-2 rounded border border-brandCyan bg-brandCyan/20"></div>', text: 'Inundation Zone' },
+                    { icon: '<div class="w-2 h-2 rounded-full bg-brandCyan shadow-[0_0_8px_rgba(6,182,212,0.8)]"></div>', text: 'Boat Units' },
+                    { icon: '<div class="w-2 h-2 rounded-full bg-brandRed shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>', text: 'Blocked Route' }
+                ]
+            },
+            'cyclone': {
+                id: 'cyclone', title: '🌀 CYCLONE & SURGE', colorClass: 'brandPurple', hex: '#8B5CF6',
+                hud1Title: 'ATMOSPHERIC DYNAMICS', hud1Icon: 'brandPurple',
+                hud3Title: 'EVACUATION ASSETS', hud3Icon: 'brandPurple',
+                prompts: ['🏠 Roof Collapsed', '💨 Seeking Wind Shelter', '🤕 Flying Debris Injury'],
+                xaiLabels: ['Wind Shear Factor', 'Storm Surge Height', 'Coastal Density', 'Power Grid Threat'],
+                assets: [
+                    { name: 'Tree Clearing Crews', stat: '4 ACTIVE / 6 TOTAL', id: 'res-irb' },
+                    { name: 'Evacuation Buses', stat: '12 DEPLOYED / 20 TOTAL', id: 'res-als' },
+                    { name: 'Tarpaulin Stock', stat: '5,000 Units', id: 'res-rat' },
+                    { name: 'Grid Repair Teams', stat: '2 Standby', id: 'res-trk' }
+                ],
+                vehicles: [
+                    { id: 'alpha', icon: '🪚', color: 'brandPurple', anim: 'animate-pulse-purple', title: 'CLEARING CREW 04', type: 'DEBRIS REMOVAL', fuel: '85%', crew: '5', target: 'MAIN HIGHWAY' },
+                    { id: 'beta', icon: '🚌', color: 'brandGreen', anim: 'animate-pulse-green', title: 'EVAC BUS 12', type: 'MASS TRANSIT', fuel: '60%', crew: '2 (1 MEDIC)', target: 'COASTAL ZONE' },
+                    { id: 'gamma', icon: '🚑', color: 'brandAmber', anim: 'animate-pulse-amber', title: 'ALS AMBULANCE 01', type: 'LIFE SUPPORT', fuel: '90%', crew: '3', target: 'SHELTER ALPHA' }
+                ],
+                cdmClass: "METEOROLOGICAL_CYCLONE",
+                sop: "NDRF_COASTAL_EVAC_BRAVO",
+                mapLegend: [
+                    { icon: '<div class="w-2 h-2 rounded-full bg-brandPurple shadow-[0_0_8px_rgba(139,92,246,0.8)]"></div>', text: 'Wind Swath Cone' },
+                    { icon: '<div class="w-2 h-2 rounded-full bg-brandGreen shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>', text: 'Evac Routes' }
+                ]
+            },
+            'heatwave': {
+                id: 'heatwave', title: '☀️ HEATWAVE & DROUGHT', colorClass: 'brandRed', hex: '#EF4444',
+                hud1Title: 'THERMAL/HUMIDITY', hud1Icon: 'brandRed',
+                hud3Title: 'MEDICAL/WATER ASSETS', hud3Icon: 'brandRed',
+                prompts: ['💧 Severe Dehydration', '🥵 Heat Stroke Symptoms', '🔌 Area Power Outage'],
+                xaiLabels: ['Wet-Bulb Temp', 'Heat Island Index', 'Vulnerable Pop Ratio', 'Water Scarcity'],
+                assets: [
+                    { name: 'ORS Distro Vans', stat: '8 ACTIVE', id: 'res-irb' },
+                    { name: 'Cooling Shelters', stat: '5 OPERATIONAL', id: 'res-als' },
+                    { name: 'Water Tankers', stat: '15 EN ROUTE', id: 'res-rat' },
+                    { name: 'Ambulances', stat: '6 ACTIVE', id: 'res-trk' }
+                ],
+                vehicles: [
+                    { id: 'alpha', icon: '💧', color: 'brandRed', anim: 'animate-pulse-red', title: 'ORS VAN 02', type: 'HYDRATION DISTRO', fuel: '50%', crew: '2', target: 'URBAN CENTER' },
+                    { id: 'beta', icon: '🚑', color: 'brandGreen', anim: 'animate-pulse-green', title: 'HEAT RESPONDER 05', type: 'MEDICAL', fuel: '100%', crew: '4', target: 'ZONE 2' },
+                    { id: 'gamma', icon: '🚛', color: 'brandCyan', anim: 'animate-pulse-cyan', title: 'WATER TANKER 09', type: 'SUPPLY', fuel: '88%', crew: '2', target: 'ZONE 7' }
+                ],
+                cdmClass: "CLIMATOLOGICAL_HEATWAVE",
+                sop: "NDRF_THERMAL_TRIAGE_CHARLIE",
+                mapLegend: [
+                    { icon: '<div class="w-2 h-2 rounded-full bg-brandRed shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>', text: 'Urban Heat Island' },
+                    { icon: '<div class="w-2 h-2 rounded-full bg-brandCyan shadow-[0_0_8px_rgba(6,182,212,0.8)]"></div>', text: 'Cooling Center' }
+                ]
+            },
+            'lightning': {
+                id: 'lightning', title: '⚡ LIGHTNING STORM', colorClass: 'brandYellow', hex: '#EAB308',
+                hud1Title: 'CONVECTIVE ENERGY', hud1Icon: 'brandYellow',
+                hud3Title: 'RAPID RESPONDERS', hud3Icon: 'brandYellow',
+                prompts: ['⚡ Lightning Strike Victim', '🔥 Fire from Strike', '🚗 Trapped in Vehicle'],
+                xaiLabels: ['CAPE Index', 'Strike Density', 'Open-Field Workers', 'Dry Fuel Load'],
+                assets: [
+                    { name: 'EMS Responders', stat: '10 ACTIVE', id: 'res-irb' },
+                    { name: 'Drone Surveillance', stat: '3 IN AIR', id: 'res-als' },
+                    { name: 'Fire Tenders', stat: '4 STANDBY', id: 'res-rat' },
+                    { name: 'Defibrillator Kits', stat: '25 FIELDED', id: 'res-trk' }
+                ],
+                vehicles: [
+                    { id: 'alpha', icon: '🚁', color: 'brandYellow', anim: '', title: 'SURV DRONE 01', type: 'AERIAL RECON', fuel: '40% (BATT)', crew: '0', target: 'SECTOR 9' },
+                    { id: 'beta', icon: '🚑', color: 'brandGreen', anim: 'animate-pulse-green', title: 'EMS FAST UNIT', type: 'MEDICAL', fuel: '95%', crew: '2 (PARAMEDICS)', target: 'SECTOR 4' },
+                    { id: 'gamma', icon: '🚒', color: 'brandRed', anim: 'animate-pulse-red', title: 'FIRE TENDER 03', type: 'SUPPRESSION', fuel: '100%', crew: '5', target: 'STANDBY' }
+                ],
+                cdmClass: "METEOROLOGICAL_SEVERE_STORM",
+                sop: "NDRF_LIGHTNING_SHELTER_DELTA",
+                mapLegend: [
+                    { icon: '<div class="w-2 h-2 rounded-full bg-brandYellow shadow-[0_0_8px_rgba(234,179,8,0.8)]"></div>', text: 'Strike Cluster' },
+                    { icon: '<div class="w-2 h-2 rounded-full bg-brandRed shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>', text: 'Fire Risk Zone' }
+                ]
+            },
+            'landslide': {
+                id: 'landslide', title: '⛰️ LANDSLIDE', colorClass: 'brandOrange', hex: '#F97316',
+                hud1Title: 'GEOLOGICAL METRICS', hud1Icon: 'brandOrange',
+                hud3Title: 'HEAVY ASSETS', hud3Icon: 'brandOrange',
+                prompts: ['🪨 Road Blocked by Debris', '🏠 House Buried', '⛰️ Active Slope Failure'],
+                xaiLabels: ['Soil Saturation', 'Slope Inclinometer', 'Population on Slope', 'Arterial Disruption'],
+                assets: [
+                    { name: 'Earthmovers / JCBs', stat: '4 ACTIVE / 6 TOTAL', id: 'res-irb' },
+                    { name: 'Heavy Rescue Squads', stat: '2 DEPLOYED', id: 'res-als' },
+                    { name: 'K9 Search Units', stat: '3 TEAMS', id: 'res-rat' },
+                    { name: 'Ambulances', stat: '5 ACTIVE', id: 'res-trk' }
+                ],
+                vehicles: [
+                    { id: 'alpha', icon: '🚜', color: 'brandOrange', anim: 'animate-pulse-amber', title: 'EARTHMOVER 02', type: 'DEBRIS CLEARANCE', fuel: '65%', crew: '1', target: 'SLOPE ALPHA' },
+                    { id: 'beta', icon: '🐕', color: 'brandCyan', anim: 'animate-pulse-cyan', title: 'K9 UNIT 01', type: 'SEARCH & RESCUE', fuel: 'N/A', crew: '2 + 1 DOG', target: 'SECTOR 2' },
+                    { id: 'gamma', icon: '🚑', color: 'brandGreen', anim: 'animate-pulse-green', title: 'ALS AMBULANCE 04', type: 'MEDICAL', fuel: '88%', crew: '3', target: 'BASE CAMP' }
+                ],
+                cdmClass: "GEOLOGICAL_LANDSLIDE",
+                sop: "NDRF_TERRAIN_RESCUE_ECHO",
+                mapLegend: [
+                    { icon: '<div class="w-2 h-2 rounded border border-brandOrange bg-brandOrange/20"></div>', text: 'Unstable Slope' },
+                    { icon: '<div class="w-2 h-2 rounded-full bg-brandRed shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>', text: 'Blocked Artery' }
+                ]
+            }
+        };
+
+        // --- Offline App Caching ---
+        if ('caches' in window) {
+            caches.open('falcon-edss-v2.5').then(cache => {
+                cache.add(location.href).catch(() => {});
+            });
+        }
+
+        // --- Network State Listeners ---
+        function updateNetworkStatus() {
+            const isOnline = navigator.onLine;
+            const statusDiv = document.getElementById('advisory-status');
+            const statusDot = document.getElementById('advisory-status-dot');
+            const statusText = document.getElementById('advisory-status-text');
+            
+            if (statusDiv && statusDot && statusText) {
+                if (isOnline) {
+                    statusDiv.className = "flex items-center gap-2 px-3 py-1.5 bg-brandGreen/10 border border-brandGreen/30 rounded-full font-mono text-[9px] text-brandGreen uppercase tracking-widest shadow-[0_0_10px_rgba(16,185,129,0.1)] transition-all duration-300 whitespace-nowrap";
+                    statusDot.className = "w-1.5 h-1.5 bg-brandGreen rounded-full animate-organic-breathe";
+                    statusText.textContent = "STATUS: NEURAL ADVISORY ONLINE";
+                } else {
+                    statusDiv.className = "flex items-center gap-2 px-3 py-1.5 bg-brandAmber/10 border border-brandAmber/30 rounded-full font-mono text-[9px] text-brandAmber uppercase tracking-widest shadow-[0_0_10px_rgba(245,158,11,0.1)] transition-all duration-300 whitespace-nowrap";
+                    statusDot.className = "w-1.5 h-1.5 bg-brandAmber rounded-full animate-pulse";
+                    statusText.textContent = "STATUS: OFFLINE HEURISTIC ACTIVE";
+                }
+            }
+        }
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        // --- NATIVE WEB AUDIO API (LAPTOP-AUDIBLE HYBRID) ---
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) { 
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass(); 
+            }
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            return audioCtx;
+        }
+
+        // Proactive touch/click resume
+        ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, () => {
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                } else if (!audioCtx) {
+                    getAudioCtx();
+                }
+            }, { once: true, passive: true });
+        });
+
+        // Luxury Tactile Sub-Bass Thud (Triangle/Sine Hybrid Audible on Laptops)
+        function playThud() {
+            try {
+                const ctx = getAudioCtx(); 
+                const t = ctx.currentTime;
+                
+                // Primary deep body (Sine)
+                const oscSine = ctx.createOscillator();
+                oscSine.type = 'sine';
+                oscSine.frequency.setValueAtTime(180, t);
+                oscSine.frequency.exponentialRampToValueAtTime(60, t + 0.13);
+
+                // Punch & laptop harmonic body (Triangle)
+                const oscTri = ctx.createOscillator();
+                oscTri.type = 'triangle';
+                oscTri.frequency.setValueAtTime(180, t);
+                oscTri.frequency.exponentialRampToValueAtTime(60, t + 0.13);
+
+                // Warm low-pass filter
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(260, t);
+
+                // Master gain envelope
+                const masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(0.35, t);
+                masterGain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+
+                // Routing
+                oscSine.connect(filter);
+                oscTri.connect(filter);
+                filter.connect(masterGain);
+                masterGain.connect(ctx.destination);
+
+                oscSine.start(t);
+                oscTri.start(t);
+                oscSine.stop(t + 0.14);
+                oscTri.stop(t + 0.14);
+            } catch (e) {}
+        }
+
+        // Authoritative Dual-Tone Emergency Pulse for SOS Transmit
+        function playEmergencyPulse() {
+            try {
+                const ctx = getAudioCtx(); 
+                const t = ctx.currentTime;
+                
+                const osc1 = ctx.createOscillator(); osc1.type = 'square'; osc1.frequency.value = 440;
+                const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = 880;
+                const gain1 = ctx.createGain(); const gain2 = ctx.createGain();
+                
+                gain1.gain.setValueAtTime(0, t);
+                gain1.gain.linearRampToValueAtTime(0.2, t + 0.05);
+                gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+                
+                gain2.gain.setValueAtTime(0, t);
+                gain2.gain.linearRampToValueAtTime(0.15, t + 0.05);
+                gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+                
+                osc1.connect(gain1); gain1.connect(ctx.destination);
+                osc2.connect(gain2); gain2.connect(ctx.destination);
+                
+                osc1.start(t); osc1.stop(t + 0.35);
+                osc2.start(t); osc2.stop(t + 0.35);
+                
+                const t2 = t + 0.2;
+                const osc3 = ctx.createOscillator(); osc3.type = 'square'; osc3.frequency.value = 440;
+                const osc4 = ctx.createOscillator(); osc4.type = 'sine'; osc4.frequency.value = 880;
+                const gain3 = ctx.createGain(); const gain4 = ctx.createGain();
+                
+                gain3.gain.setValueAtTime(0, t2);
+                gain3.gain.linearRampToValueAtTime(0.2, t2 + 0.05);
+                gain3.gain.exponentialRampToValueAtTime(0.001, t2 + 0.4);
+                
+                gain4.gain.setValueAtTime(0, t2);
+                gain4.gain.linearRampToValueAtTime(0.15, t2 + 0.05);
+                gain4.gain.exponentialRampToValueAtTime(0.001, t2 + 0.4);
+                
+                osc3.connect(gain3); gain3.connect(ctx.destination);
+                osc4.connect(gain4); gain4.connect(ctx.destination);
+                
+                osc3.start(t2); osc3.stop(t2 + 0.45);
+                osc4.start(t2); osc4.stop(t2 + 0.45);
+            } catch (e) {}
+        }
+
+        // Generic alert siren
+        function playSiren() {
+            try {
+                const ctx = getAudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, ctx.currentTime); 
+                osc.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 1.5); 
+                osc.frequency.linearRampToValueAtTime(600, ctx.currentTime + 3.0);
+                gain.gain.setValueAtTime(0, ctx.currentTime); 
+                gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.2); 
+                gain.gain.setValueAtTime(0.1, ctx.currentTime + 2.8); 
+                gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 3.0);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 3.0);
+            } catch (e) {}
+        }
+
+        // Geolocation Pipeline
+        function forceSyncGPS() {
+            playThud();
+            showDynamicIsland('ACQUIRING SATELLITE LOCK...');
+            initGeolocation();
+        }
+
+        function initGeolocation() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    onLiveLocationSuccess, 
+                    onLiveLocationError, 
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                );
+            } else {
+                onLiveLocationError({message: "Geolocation strictly not supported by browser"});
+            }
+        }
+
+        function onLiveLocationSuccess(position) {
+            currentLat = position.coords.latitude;
+            currentLon = position.coords.longitude;
+            isGpsLive = true;
+            
+            const banner = document.getElementById('gps-banner');
+            if(banner) {
+                banner.classList.remove('translate-y-0');
+                banner.classList.add('translate-y-[-100%]');
+            }
+
+            boatLat = currentLat - 0.02;
+            boatLon = currentLon - 0.05;
+
+            updateLocationUI();
+            fetchWeather(currentLat, currentLon);
+            
+            if(mapInitialized && map) {
+                map.setView([currentLat, currentLon], 13);
+                renderTacticalMapAssets();
+            }
+            
+            showDynamicIsland('LIVE GPS SYNCED & SECURED');
+        }
+
+        function onLiveLocationError(error) {
+            console.warn("GPS Denied/Timeout", error);
+            isGpsLive = false;
+            
+            const banner = document.getElementById('gps-banner');
+            if(banner) {
+                banner.classList.remove('translate-y-[-100%]');
+                banner.classList.add('translate-y-0');
+            }
+            
+            if(currentLat === 0) { 
+                currentLat = 28.6139; // Fallback
+                currentLon = 77.2090; 
+                boatLat = currentLat - 0.02;
+                boatLon = currentLon - 0.05;
+            }
+            
+            updateLocationUI();
+            fetchWeather(currentLat, currentLon);
+            
+            if(mapInitialized && map) {
+                map.setView([currentLat, currentLon], 12);
+                renderTacticalMapAssets();
+            }
+        }
+
+        async function fetchWeather(lat, lon) {
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=precipitation,rain,surface_pressure,wind_speed_10m,wind_gusts_10m,temperature_2m,relative_humidity_2m&hourly=cape&timezone=auto`);
+                if (!res.ok) throw new Error("Weather API failed");
+                const data = await res.json();
+                const cur = data.current;
+                
+                weatherData.precip = cur.precipitation !== undefined ? cur.precipitation : 0;
+                weatherData.wind = cur.wind_speed_10m !== undefined ? cur.wind_speed_10m : 0;
+                weatherData.gust = cur.wind_gusts_10m !== undefined ? cur.wind_gusts_10m : 0;
+                weatherData.pressure = cur.surface_pressure !== undefined ? cur.surface_pressure : "--";
+                weatherData.temp = cur.temperature_2m !== undefined ? cur.temperature_2m : "--";
+                weatherData.humidity = cur.relative_humidity_2m !== undefined ? cur.relative_humidity_2m : "--";
+                
+                if (data.hourly && data.hourly.cape && data.hourly.cape.length > 0) {
+                    weatherData.cape = data.hourly.cape[new Date().getHours()];
+                } else {
+                    weatherData.cape = Math.floor(Math.random() * 2000) + 500;
+                }
+
+                weatherData.soil = Math.floor(Math.random() * 40) + 50;
+                
+                if (weatherData.precip > 10) weatherData.status = "EXTREME";
+                else if (weatherData.precip > 2) weatherData.status = "MODERATE";
+                else weatherData.status = "NOMINAL";
+
+                renderDynamicTelemetryUI();
+            } catch (err) {
+                console.warn("Weather fetch failed, keeping defaults/fallback", err);
+                renderDynamicTelemetryUI();
+            }
+        }
+
+        function updateLocationUI() {
+            const gpsText = document.getElementById('hud-gps-text');
+            if (gpsText) {
+                gpsText.textContent = isGpsLive 
+                    ? `LIVE GPS: [${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}] (DEVICE VERIFIED)`
+                    : `FALLBACK GPS: [${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}] (UNVERIFIED)`;
+            }
+            
+            const sosDisplay = document.getElementById('sos-location-display');
+            if(sosDisplay) {
+                sosDisplay.textContent = isGpsLive
+                    ? `[${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}]`
+                    : `[${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}] (FALLBACK)`;
+                sosDisplay.className = `text-[10px] md:text-xs font-mono font-bold ${isGpsLive ? 'text-brandGreen' : 'text-brandAmber'} flex items-center gap-2`;
+            }
+        }
+
+        // Dynamic multi-hazard mode selector
+        function setHazardMode(mode) {
+            playThud();
+            currentHazardMode = mode;
+            
+            const pillClassMap = {
+                'flood': 'active-flood', 'cyclone': 'active-cyclone',
+                'heatwave': 'active-heatwave', 'lightning': 'active-lightning', 'landslide': 'active-landslide'
+            };
+            
+            document.querySelectorAll('.hazard-pill').forEach(btn => {
+                btn.className = 'hazard-pill';
+            });
+
+            document.querySelectorAll(`[data-hazard="${mode}"]`).forEach(btn => {
+                btn.classList.add(pillClassMap[mode]);
+            });
+
+            renderDynamicTelemetryUI();
+            renderTacticalAssetsUI();
+            renderAdvisoryPrompts();
+            updateTriageExplanations();
+
+            if(mapInitialized) renderTacticalMapAssets();
+            
+            const conf = hazardConfigs[currentHazardMode];
+            showDynamicIsland(`HAZARD PROTOCOL SHIFTED: ${conf.title}`);
+        }
+
+        function buildHazardSelectors() {
+            const tabs = ['triage-hazard-selector', 'map-hazard-selector'];
+            const modes = [
+                {id: 'flood', text: '🌊 FLASH FLOOD'},
+                {id: 'cyclone', text: '🌀 CYCLONE & SURGE'},
+                {id: 'heatwave', text: '☀️ HEATWAVE'},
+                {id: 'lightning', text: '⚡ LIGHTNING'},
+                {id: 'landslide', text: '⛰️ LANDSLIDE'}
+            ];
+
+            const pillClassMap = {
+                'flood': 'active-flood', 'cyclone': 'active-cyclone',
+                'heatwave': 'active-heatwave', 'lightning': 'active-lightning', 'landslide': 'active-landslide'
+            };
+
+            tabs.forEach(tabId => {
+                const container = document.getElementById(tabId);
+                if(container) {
+                    container.innerHTML = modes.map(m => {
+                        const activeClass = m.id === currentHazardMode ? pillClassMap[m.id] : '';
+                        return `<button class="hazard-pill ${activeClass}" data-hazard="${m.id}" onclick="setHazardMode('${m.id}')">${m.text}</button>`;
+                    }).join('');
+                }
+            });
+        }
+
+        function renderDynamicTelemetryUI() {
+            const conf = hazardConfigs[currentHazardMode];
+            const badgeText = isGpsLive ? "LIVE GRID (DEVICE LOC BOUND)" : "FALLBACK GRID";
+            
+            let ingestionHtml = '';
+            let triageHtml = '';
+
+            if(currentHazardMode === 'flood') {
+                ingestionHtml = `
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[IMD WEATHER RADAR]</span>
+                            <span class="text-[7px] md:text-[8px] font-mono text-${conf.colorClass} uppercase border border-${conf.colorClass}/30 px-1 rounded flex items-center gap-1"><div class="w-1 h-1 bg-${conf.colorClass} rounded-full animate-pulse"></div>${badgeText}</span>
+                        </div>
+                        <div class="flex flex-col gap-1 text-[10px] md:text-xs font-medium text-slate-200 mt-1">
+                            <div class="flex items-center gap-2"><span class="text-brandCyan">🌧 ${weatherData.precip} mm/hr</span><span class="text-slate-500">|</span><span>🌪️ ${weatherData.wind} km/h</span></div>
+                        </div>
+                        <div class="text-[8px] font-mono text-brandCyan mt-1" id="hud-gps-text">LIVE GPS: [${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}]</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[CWC HYDRO SENSOR]</span>
+                        <div class="flex items-center gap-2 text-[10px] md:text-xs font-medium text-brandRed font-mono">
+                            <span>Local Gauge 14.8m</span><span class="text-slate-500">|</span><span class="text-slate-400 text-[9px]">DANGER: 13.5m</span>
+                        </div>
+                    </div>`;
+                    
+                triageHtml = `
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">Rainfall (Live)</span><span class="text-${conf.colorClass} font-bold">${weatherData.precip} mm/hr</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">River Gauge</span><span class="text-brandRed font-bold animate-pulse">14.8m (DANGER)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Silt Discharge</span><span class="text-brandAmber font-bold">EXTREME</span>
+                    </div>`;
+            } else if (currentHazardMode === 'cyclone') {
+                ingestionHtml = `
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[IMD CYCLONE TRACKER]</span>
+                            <span class="text-[7px] md:text-[8px] font-mono text-${conf.colorClass} uppercase border border-${conf.colorClass}/30 px-1 rounded flex items-center gap-1"><div class="w-1 h-1 bg-${conf.colorClass} rounded-full animate-pulse"></div>${badgeText}</span>
+                        </div>
+                        <div class="flex flex-col gap-1 text-[10px] md:text-xs font-medium text-slate-200 mt-1">
+                            <div class="flex items-center gap-2"><span class="text-${conf.colorClass}">🌪️ Sustained: ${weatherData.wind} km/h</span></div>
+                            <div class="flex items-center gap-2"><span>🌬️ Gusts: ${weatherData.gust} km/h</span><span class="text-slate-500">|</span><span class="text-slate-400">${weatherData.pressure} hPa</span></div>
+                        </div>
+                        <div class="text-[8px] font-mono text-${conf.colorClass} mt-1" id="hud-gps-text">LIVE GPS: [${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}]</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[INCOIS SURGE SENSOR]</span>
+                        <div class="flex items-center gap-2 text-[10px] md:text-xs font-medium text-brandRed font-mono">
+                            <span>Surge Peak: 3.8m</span><span class="text-slate-500">|</span><span class="text-slate-400 text-[9px]">TIDE: HIGH</span>
+                        </div>
+                    </div>`;
+                    
+                triageHtml = `
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">Wind Speed</span><span class="text-${conf.colorClass} font-bold">${weatherData.wind} km/h</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">Barometric Drop</span><span class="text-slate-200 font-bold">${weatherData.pressure} hPa 📉</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Storm Surge</span><span class="text-brandRed font-bold animate-pulse">3.8m PREDICTED</span>
+                    </div>`;
+            } else if (currentHazardMode === 'heatwave') {
+                ingestionHtml = `
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[IMD THERMAL SENSOR]</span>
+                            <span class="text-[7px] md:text-[8px] font-mono text-${conf.colorClass} uppercase border border-${conf.colorClass}/30 px-1 rounded flex items-center gap-1"><div class="w-1 h-1 bg-${conf.colorClass} rounded-full animate-pulse"></div>${badgeText}</span>
+                        </div>
+                        <div class="flex flex-col gap-1 text-[10px] md:text-xs font-medium text-slate-200 mt-1">
+                            <div class="flex items-center gap-2"><span class="text-${conf.colorClass}">🌡 Ambient: ${weatherData.temp}°C</span></div>
+                            <div class="flex items-center gap-2"><span>💧 Humidity: ${weatherData.humidity}%</span><span class="text-slate-500">|</span><span class="text-slate-400">UV: EXTREME</span></div>
+                        </div>
+                        <div class="text-[8px] font-mono text-${conf.colorClass} mt-1" id="hud-gps-text">LIVE GPS: [${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}]</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[POWER GRID LOAD]</span>
+                        <div class="flex items-center gap-2 text-[10px] md:text-xs font-medium text-brandOrange font-mono">
+                            <span>Demand: 98% CAP</span><span class="text-slate-500">|</span><span class="text-slate-400 text-[9px]">ROLLING BLACKOUTS: ON</span>
+                        </div>
+                    </div>`;
+                
+                triageHtml = `
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">Ambient Temp</span><span class="text-${conf.colorClass} font-bold">${weatherData.temp}°C</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">Wet-Bulb (Est)</span><span class="text-brandRed font-bold animate-pulse">32.4°C (CRITICAL)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Grid Load</span><span class="text-brandOrange font-bold">98% PEAK</span>
+                    </div>`;
+            } else if (currentHazardMode === 'lightning') {
+                ingestionHtml = `
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[ATMOSPHERIC RADAR]</span>
+                            <span class="text-[7px] md:text-[8px] font-mono text-${conf.colorClass} uppercase border border-${conf.colorClass}/30 px-1 rounded flex items-center gap-1"><div class="w-1 h-1 bg-${conf.colorClass} rounded-full animate-pulse"></div>${badgeText}</span>
+                        </div>
+                        <div class="flex flex-col gap-1 text-[10px] md:text-xs font-medium text-slate-200 mt-1">
+                            <div class="flex items-center gap-2"><span class="text-${conf.colorClass}">⚡ CAPE: ${weatherData.cape} J/kg</span></div>
+                            <div class="flex items-center gap-2"><span>🌪️ Shear: Moderate</span><span class="text-slate-500">|</span><span class="text-slate-400">Cloud Tops: 14km</span></div>
+                        </div>
+                        <div class="text-[8px] font-mono text-${conf.colorClass} mt-1" id="hud-gps-text">LIVE GPS: [${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}]</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[STRIKE DENSITY SENSOR]</span>
+                        <div class="flex items-center gap-2 text-[10px] md:text-xs font-medium text-brandRed font-mono">
+                            <span>42 Strikes / min</span><span class="text-slate-500">|</span><span class="text-slate-400 text-[9px]">RADIUS: 10km</span>
+                        </div>
+                    </div>`;
+                
+                triageHtml = `
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">Convective (CAPE)</span><span class="text-${conf.colorClass} font-bold">${weatherData.cape} J/kg</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">Strike Density</span><span class="text-brandRed font-bold animate-pulse">42 / min</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Warning Time</span><span class="text-brandOrange font-bold">< 12 Mins</span>
+                    </div>`;
+            } else if (currentHazardMode === 'landslide') {
+                ingestionHtml = `
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[GEOLOGICAL SENSOR]</span>
+                            <span class="text-[7px] md:text-[8px] font-mono text-${conf.colorClass} uppercase border border-${conf.colorClass}/30 px-1 rounded flex items-center gap-1"><div class="w-1 h-1 bg-${conf.colorClass} rounded-full animate-pulse"></div>${badgeText}</span>
+                        </div>
+                        <div class="flex flex-col gap-1 text-[10px] md:text-xs font-medium text-slate-200 mt-1">
+                            <div class="flex items-center gap-2"><span class="text-${conf.colorClass}">⛰️ Soil Moist: ${weatherData.soil}%</span></div>
+                            <div class="flex items-center gap-2"><span>🌧 72h Rain: ${weatherData.precip * 72} mm</span></div>
+                        </div>
+                        <div class="text-[8px] font-mono text-${conf.colorClass} mt-1" id="hud-gps-text">LIVE GPS: [${currentLat.toFixed(4)}, ${currentLon.toFixed(4)}]</div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[SLOPE INCLINOMETER]</span>
+                        <div class="flex items-center gap-2 text-[10px] md:text-xs font-medium text-brandRed font-mono">
+                            <span>Displacement: 4.2mm/h</span><span class="text-slate-500">|</span><span class="text-slate-400 text-[9px]">FAILURE IMMINENT</span>
+                        </div>
+                    </div>`;
+                
+                triageHtml = `
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">Soil Saturation</span><span class="text-${conf.colorClass} font-bold">${weatherData.soil}%</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span class="text-slate-400">Slope Shift</span><span class="text-brandRed font-bold animate-pulse">4.2 mm/h</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">72h Accumulation</span><span class="text-brandOrange font-bold">${weatherData.precip * 72} mm</span>
+                    </div>`;
+            }
+
+            ingestionHtml += `
+                <div class="flex items-center justify-between border-t border-white/5 pt-3 mt-1">
+                    <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[SATELLITE SAR OVERLAY]</span>
+                    <label class="relative inline-flex items-center cursor-pointer group">
+                        <input type="checkbox" id="sar-toggle" class="sr-only peer">
+                        <div class="w-8 h-4 bg-black/50 border border-white/10 rounded-full peer-checked:bg-${conf.colorClass}/20 peer-checked:border-${conf.colorClass}/50 transition-all shadow-inner after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-[16px] peer-checked:after:bg-${conf.colorClass}"></div>
+                    </label>
+                </div>
+                <div class="flex items-center justify-between pt-1">
+                    <span class="text-[8px] md:text-[9px] font-mono tracking-widest text-slate-400 uppercase">[CITIZEN CROWDSOURCED SOS]</span>
+                    <span class="text-[10px] md:text-xs font-mono font-bold text-brandAmber whitespace-nowrap" id="hud-beacon-count">${triageCount} Verified Beacons</span>
+                </div>
+            `;
+
+            const mapHud = document.getElementById('map-telemetry-container');
+            if(mapHud) mapHud.innerHTML = ingestionHtml;
+
+            const triageHudHTML = `
+                <div class="obsidian-glass cinematic-hover rounded-2xl p-5 border-t border-${conf.colorClass}/30">
+                    <h3 class="text-[10px] font-bold text-${conf.colorClass} uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 bg-${conf.colorClass} rounded-full animate-pulse"></div> ${conf.hud1Title}
+                    </h3>
+                    <div class="space-y-3 font-mono text-[10px] md:text-xs text-slate-300">
+                        ${triageHtml}
+                    </div>
+                </div>
+                <div class="obsidian-glass cinematic-hover rounded-2xl p-5 border-t border-brandAmber/30">
+                    <h3 class="text-[10px] font-bold text-brandAmber uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 bg-brandAmber rounded-full animate-pulse"></div> CITIZEN INCIDENTS
+                    </h3>
+                    <div class="space-y-3 font-mono text-[10px] md:text-xs text-slate-300">
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2"><span class="text-slate-400">Unassigned SOS</span><span class="text-brandRed font-bold">4</span></div>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2"><span class="text-slate-400">Active / En Route</span><span class="text-brandAmber font-bold">12</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400">Resolved Reports</span><span class="text-brandGreen font-bold">8</span></div>
+                        <div class="text-[8px] text-slate-500 pt-1 text-right">LAST SYNC: <span id="sync-time">00:00 IST</span></div>
+                    </div>
+                </div>
+                <div class="obsidian-glass cinematic-hover rounded-2xl p-5 border-t border-${conf.colorClass}/30">
+                    <h3 class="text-[10px] font-bold text-${conf.colorClass} uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 bg-${conf.colorClass} rounded-full animate-pulse"></div> ${conf.hud3Title}
+                    </h3>
+                    <div class="space-y-3 font-mono text-[10px] md:text-xs text-slate-300">
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2"><span class="text-slate-400">${conf.assets[0].name}</span><span class="text-${conf.colorClass} font-bold" id="t-a-1">${conf.assets[0].stat}</span></div>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2"><span class="text-slate-400">${conf.assets[1].name}</span><span class="text-brandGreen font-bold" id="t-a-2">${conf.assets[1].stat}</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400">Shelter Occupancy</span><span class="text-brandAmber font-bold">225 / 800 BEDS</span></div>
+                    </div>
+                </div>
+            `;
+            
+            const triageHud = document.getElementById('triage-hud-container');
+            if(triageHud) triageHud.innerHTML = triageHudHTML;
+
+            const sarToggle = document.getElementById('sar-toggle');
+            if(sarToggle) {
+                sarToggle.addEventListener('change', function(e) {
+                    playThud();
+                    const isEnabled = e.target.checked;
+                    requestAnimationFrame(() => {
+                        if (isEnabled && map && sarLayer) { map.addLayer(sarLayer); } 
+                        else if (!isEnabled && map && sarLayer) { map.removeLayer(sarLayer); }
+                    });
+                });
+            }
+        }
+
+        function renderTacticalAssetsUI() {
+            const conf = hazardConfigs[currentHazardMode];
+            const container = document.getElementById('triage-resources-container');
+            if(container) {
+                container.innerHTML = conf.assets.map(a => `
+                    <div class="flex justify-between"><span>${a.name}</span><span id="${a.id}">${a.stat}</span></div>
+                `).join('');
+            }
+
+            const btnAllocate = document.getElementById('btn-allocate');
+            if(btnAllocate) {
+                btnAllocate.className = `w-full cinematic-hover bg-${conf.colorClass}/90 text-slate-900 font-semibold tracking-widest text-xs md:text-sm py-4 rounded-xl border border-${conf.colorClass} shadow-[0_0_20px_rgba(0,0,0,0.3)] mt-6 gpu-layer min-h-[44px] focus:outline-none`;
+            }
+
+            const dispatchBtn = document.getElementById('dispatch-btn-reroute');
+            if(dispatchBtn) {
+                dispatchBtn.className = `flex-1 spring-interactive-subtle bg-${conf.colorClass}/20 hover:bg-${conf.colorClass}/30 text-${conf.colorClass} border border-${conf.colorClass}/40 font-bold font-mono text-xs px-4 py-4 rounded-xl transition-all shadow-[0_0_15px_rgba(0,0,0,0.15)] uppercase tracking-widest min-h-[44px] focus:outline-none flex items-center justify-center gap-2`;
+            }
+
+            const activeBadge = document.getElementById('cdm-active-badge');
+            if(activeBadge) {
+                activeBadge.className = `text-[8px] font-mono text-${conf.colorClass} bg-${conf.colorClass}/10 px-1.5 py-0.5 rounded uppercase border border-${conf.colorClass}/30`;
+            }
+
+            const pulseDot = document.getElementById('hud-pulse-dot');
+            if(pulseDot) { pulseDot.className = `w-1.5 h-1.5 bg-${conf.colorClass} rounded-full animate-organic-breathe`; }
+
+            const islandDot = document.getElementById('island-dot');
+            if(islandDot) { islandDot.className = `w-2 h-2 rounded-full bg-${conf.colorClass} shadow-[0_0_8px_${conf.hex}80] animate-pulse`; }
+        }
+
+        function renderAdvisoryPrompts() {
+            const conf = hazardConfigs[currentHazardMode];
+            const container = document.getElementById('advisory-prompts');
+            if(container) {
+                container.innerHTML = conf.prompts.map(p => `
+                    <button onclick="triggerAdvisory('${p}')" class="cinematic-hover spring-interactive-subtle px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs font-semibold tracking-wide bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-600 shadow-sm whitespace-nowrap gpu-layer min-h-[44px] focus:outline-none">${p}</button>
+                `).join('');
+            }
+
+            const title = document.getElementById('advisory-welcome-title');
+            if(title) title.className = `text-${conf.colorClass} text-[9px] md:text-[10px] font-mono font-bold tracking-widest uppercase`;
+        }
+
+        function updateTriageExplanations() {
+            const conf = hazardConfigs[currentHazardMode];
+            const labels = conf.xaiLabels;
+            
+            for(let i=1; i<=4; i++) {
+                const el = document.getElementById(`xai-triage-label-${i}`);
+                if(el) el.textContent = labels[i-1];
+                const mEl = document.getElementById(`xai-label-${i}`);
+                if(mEl) mEl.textContent = labels[i-1];
+            }
+        }
+
+        // --- TAB 1 CITIZEN SOS LOGIC ---
+        function setSosPriority(level) {
+            playThud();
+            selectedSosPriority = level;
+            document.querySelectorAll('.sos-pri-btn').forEach(btn => {
+                btn.classList.remove('border-brandRed', 'bg-brandRed/20', 'border-brandOrange', 'bg-brandOrange/20', 'border-brandYellow', 'bg-brandYellow/20', 'shadow-[0_0_15px_rgba(239,68,68,0.3)]', 'shadow-[0_0_15px_rgba(249,115,22,0.3)]', 'shadow-[0_0_15px_rgba(234,179,8,0.3)]');
+                btn.classList.add('border-white/10', 'bg-white/5');
+            });
+            
+            const activeBtn = document.getElementById(`btn-pri-${level.toLowerCase()}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('border-white/10', 'bg-white/5');
+                if(level === 'CRITICAL') activeBtn.classList.add('border-brandRed', 'bg-brandRed/20', 'shadow-[0_0_15px_rgba(239,68,68,0.3)]');
+                if(level === 'HIGH') activeBtn.classList.add('border-brandOrange', 'bg-brandOrange/20', 'shadow-[0_0_15px_rgba(249,115,22,0.3)]');
+                if(level === 'ADVISORY') activeBtn.classList.add('border-brandYellow', 'bg-brandYellow/20', 'shadow-[0_0_15px_rgba(234,179,8,0.3)]');
+            }
+        }
+
+        function setSosHazard(hazardId, hazardName) {
+            playThud();
+            selectedSosHazard = hazardName;
+            document.querySelectorAll('.sos-haz-btn').forEach(btn => {
+                btn.classList.remove('border-brandCyan', 'bg-brandCyan/20', 'text-white', 'shadow-[0_0_15px_rgba(6,182,212,0.3)]');
+                btn.classList.add('border-white/10', 'bg-white/5', 'text-slate-400');
+            });
+            const activeBtn = document.getElementById(`btn-haz-${hazardId}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('border-white/10', 'bg-white/5', 'text-slate-400');
+                activeBtn.classList.add('border-brandCyan', 'bg-brandCyan/20', 'text-white', 'shadow-[0_0_15px_rgba(6,182,212,0.3)]');
+            }
+        }
+
+        function adjustSouls(delta) {
+            playThud();
+            sosSoulsCount += delta;
+            if(sosSoulsCount < 1) sosSoulsCount = 1;
+            if(sosSoulsCount > 999) sosSoulsCount = 999;
+            document.getElementById('sos-souls-display').textContent = sosSoulsCount;
+        }
+
+        // --- Boot Sequence & Sub-Bass Calibration ---
+        document.addEventListener("DOMContentLoaded", () => {
+            updateNetworkStatus();
+            buildHazardSelectors();
+            initGeolocation(); 
+            setHazardMode('flood'); 
+            
+            const bootText = document.getElementById('boot-text');
+            const veil = document.getElementById('boot-veil');
+            const appRoot = document.getElementById('app-root');
+            const aperture = document.getElementById('aperture');
+            
+            const targetText = "INITIALIZING EARLY WARNING GRID // SECURING RESCUE CORRIDORS";
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+            
+            let iterations = 0;
+            const maxIterations = 25; 
+            
+            if(bootText) {
+                const decryptInterval = setInterval(() => {
+                    bootText.textContent = targetText.split('').map((char, index) => {
+                        if (char === ' ') return ' ';
+                        if (index < (iterations / maxIterations) * targetText.length) return targetText[index];
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    }).join('');
+                    
+                    iterations++;
+                    if (iterations >= maxIterations) {
+                        clearInterval(decryptInterval);
+                        bootText.textContent = targetText;
+                    }
+                }, 40);
+            }
+
+            setTimeout(() => {
+                playThud();
+                if(aperture) aperture.classList.add('aperture-expand');
+                if(veil) veil.classList.add('veil-hidden');
+                if(appRoot) {
+                    appRoot.classList.remove('app-root-hidden');
+                    appRoot.classList.add('app-root-visible');
+                }
+                
+                setTimeout(() => {
+                    if(veil) { veil.style.display = 'none'; veil.remove(); }
+                }, 700);
+            }, 1500);
+        });
+
+        // --- High-Fidelity Local Indian Standard Time (IST) Clock ---
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            const clockEl = document.getElementById('clock');
+            if(clockEl) clockEl.textContent = timeStr;
+
+            const syncEls = document.querySelectorAll('#sync-time');
+            syncEls.forEach(el => el.textContent = timeStr + ' IST');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- Authority Rapid-Action Dispatch ---
+        function triggerSiren() {
+            playSiren();
+            const banner = document.getElementById('siren-banner');
+            const text = document.getElementById('siren-banner-text');
+            const conf = hazardConfigs[currentHazardMode];
+            
+            if(text) text.textContent = `GENERAL EVACUATION ALERT ACTIVE FOR ${conf.title}`;
+            if(banner) {
+                banner.classList.add('active');
+                setTimeout(() => { banner.classList.remove('active'); }, 4000);
+            }
+            showDynamicIsland('EVACUATION SIREN ENGAGED');
+        }
+
+        function rerouteAssets() {
+            playThud();
+            showDynamicIsland('ASSETS REROUTED TO CRITICAL ZONES');
+            boatDirLat = -0.0003; boatDirLon = -0.0005;
+            if(unitGammaMarker && map) { unitGammaMarker.setLatLng([currentLat - 0.005, currentLon - 0.03]); }
+        }
+
+        function exportSitRep() {
+            playThud();
+            const payload = getCdmPayload();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `FALCON_SITREP_${currentHazardMode}_${new Date().getTime()}.json`);
+            document.body.appendChild(downloadAnchorNode); 
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            showDynamicIsland('SITREP EXPORTED TO SECURE STORAGE');
+        }
+
+        function showDynamicIsland(message) {
+            const island = document.getElementById('dynamic-island');
+            const text = document.getElementById('island-text');
+            if(island && text) {
+                text.textContent = message;
+                requestAnimationFrame(() => { island.classList.add('island-active'); });
+                setTimeout(() => { island.classList.remove('island-active'); }, 3500);
+            }
+        }
+
+        // --- XAI Explainability Modal Logic ---
+        function openXaiModal(sectorId) {
+            playThud();
+            const modal = document.getElementById('xai-modal');
+            const data = xaiData[sectorId];
+            const conf = hazardConfigs[currentHazardMode];
+            
+            if(modal && data) {
+                document.getElementById('xai-title').textContent = data.title;
+                
+                const badge = document.getElementById('xai-badge');
+                badge.textContent = data.badge;
+                badge.className = `bg-${data.classColor}/10 border border-${data.classColor}/30 text-${data.classColor} font-mono text-[10px] tracking-widest font-semibold px-3 py-1.5 rounded-full shadow-[0_0_10px_${data.color}33]`;
+                
+                document.getElementById('xai-directive').textContent = data.directive;
+                
+                document.getElementById('xai-val-1').textContent = data.w1 + '%';
+                document.getElementById('xai-val-2').textContent = data.w2 + '%';
+                document.getElementById('xai-val-3').textContent = data.w3 + '%';
+                document.getElementById('xai-val-4').textContent = data.w4 + '%';
+                
+                for(let i=1; i<=4; i++) {
+                    const bar = document.getElementById(`xai-bar-${i}`);
+                    bar.style.transform = `scale3d(0, 1, 1)`;
+                }
+
+                modal.classList.remove('hidden'); modal.classList.add('flex');
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        document.getElementById('xai-bar-1').style.transform = `scale3d(${data.w1/100}, 1, 1)`;
+                        document.getElementById('xai-bar-2').style.transform = `scale3d(${data.w2/100}, 1, 1)`;
+                        document.getElementById('xai-bar-3').style.transform = `scale3d(${data.w3/100}, 1, 1)`;
+                        document.getElementById('xai-bar-4').style.transform = `scale3d(${data.w4/100}, 1, 1)`;
+                    });
+                });
+            }
+        }
+
+        function closeXaiModal() {
+            playThud();
+            const modal = document.getElementById('xai-modal');
+            if(modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        }
+
+        // --- Vehicle Tactical Modal Logic ---
+        function openVehicleModal(title, type, fuel, crew, target) {
+            playThud();
+            const modal = document.getElementById('vehicle-modal');
+            const conf = hazardConfigs[currentHazardMode];
+            
+            if(modal) {
+                document.getElementById('veh-title').textContent = title;
+                document.getElementById('veh-type').textContent = type;
+                document.getElementById('veh-fuel-val').textContent = fuel;
+                document.getElementById('veh-crew').textContent = crew;
+                document.getElementById('veh-target').textContent = target;
+                
+                const fuelInt = parseInt(fuel);
+                const fuelBar = document.getElementById('veh-fuel-bar');
+                
+                const badge = document.getElementById('veh-badge');
+                badge.className = `bg-${conf.colorClass}/10 border border-${conf.colorClass}/30 text-${conf.colorClass} font-mono text-[10px] tracking-widest font-semibold px-3 py-1.5 rounded-full mb-3 inline-block shadow-[0_0_10px_${conf.hex}40]`;
+
+                fuelBar.className = `h-full shadow-lg transition-all duration-500 bg-${conf.colorClass} shadow-[0_0_8px_${conf.hex}80]`;
+                if(fuelInt < 30) fuelBar.className = "h-full shadow-lg transition-all duration-500 bg-brandRed shadow-[0_0_8px_rgba(239,68,68,0.8)]";
+                
+                fuelBar.style.width = '0%';
+                
+                modal.classList.remove('hidden'); modal.classList.add('flex');
+                
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => { fuelBar.style.width = fuel; });
+                });
+            }
+        }
+
+        function closeVehicleModal() {
+            playThud();
+            const modal = document.getElementById('vehicle-modal');
+            if(modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        }
+
+        // --- POLYMORPHIC CDM LOGIC ---
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') { json = JSON.stringify(json, undefined, 2); }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number'; 
+                if (/^"/.test(match)) { if (/:$/.test(match)) { cls = 'json-key'; } else { cls = 'json-string'; } } 
+                else if (/true|false/.test(match)) { cls = 'json-boolean'; } 
+                else if (/null/.test(match)) { cls = 'json-null'; }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function getCdmPayload() {
+            const conf = hazardConfigs[currentHazardMode];
+            let dynamicMetrics = {};
+
+            if(currentHazardMode === 'flood') {
+                dynamicMetrics = { "precip_rate_mm_hr": weatherData.precip, "river_gauge_m": 14.8, "silt_discharge": "HIGH" };
+            } else if (currentHazardMode === 'cyclone') {
+                dynamicMetrics = { "sustained_wind_kmh": weatherData.wind, "central_pressure_hpa": weatherData.pressure, "storm_surge_height_m": 3.8 };
+            } else if (currentHazardMode === 'heatwave') {
+                dynamicMetrics = { "ambient_temp_c": weatherData.temp, "humidity_pct": weatherData.humidity, "grid_load_pct": 98 };
+            } else if (currentHazardMode === 'lightning') {
+                dynamicMetrics = { "cape_j_kg": weatherData.cape, "strike_density_min": 42, "cloud_top_km": 14 };
+            } else if (currentHazardMode === 'landslide') {
+                dynamicMetrics = { "soil_saturation_pct": weatherData.soil, "slope_displacement_mm_h": 4.2, "72h_precip_mm": weatherData.precip * 72 };
+            }
+
+            return {
+                "hazard_event_id": `OD-FL-2026-${Math.floor(Math.random()*10000)}`,
+                "schema_version": "FALCON_CDM_v2.5",
+                "hazard_classification": conf.cdmClass,
+                "normalized_timestamp": new Date().toISOString(),
+                "ingestion_telemetry": {
+                    "gps_anchor": [currentLat, currentLon],
+                    "dynamic_metric_bindings": dynamicMetrics,
+                    "satellite_sar": { "constellation": "SENTINEL-1", "surface_anomaly_pct": 312 },
+                    "crowdsourced_reports": { "active_sos_clusters": triageCount, "total_souls_at_risk": 23 }
+                },
+                "impact_prediction": {
+                    "risk_tier": "CRITICAL",
+                    "explainability": {
+                        "hazard_factor": 0.42,
+                        "structural_vulnerability": 0.31,
+                        "demographic_exposure": 0.18,
+                        "critical_infra_threat": 0.09
+                    }
+                },
+                "active_mitigation_sop": conf.sop,
+                "evacuation_routing": {
+                    "recommended_safe_corridor": "ROUTE_ALPHA_HIGH_RIDGE",
+                    "blocked_arteries": ["PRIMARY_LINK_ROAD"],
+                    "primary_shelter_target": "SHELTER_ALPHA",
+                    "shelter_available_capacity": "30%"
+                },
+                "resource_allocation": {
+                    "heavy_assets_deployed": 5,
+                    "medical_units_active": 2,
+                    "support_payloads_dispatched": 850
+                },
+                "automated_triage_action": "PRIORITY_EVACUATION_LEVEL_1"
+            };
+        }
+
+        function openCdmModal() {
+            playThud();
+            const modal = document.getElementById('cdm-modal');
+            if(modal) {
+                modal.classList.remove('hidden'); modal.classList.add('flex');
+                document.getElementById('cdm-json-content').innerHTML = syntaxHighlight(getCdmPayload());
+            }
+        }
+
+        function closeCdmModal() {
+            playThud();
+            const modal = document.getElementById('cdm-modal');
+            if(modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        }
+
+        function copyCdmJson() {
+            playThud();
+            navigator.clipboard.writeText(JSON.stringify(getCdmPayload(), null, 2)).then(() => {
+                showDynamicIsland('JSON SCHEMA COPIED');
+            });
+        }
+
+        function allocateSector4() {
+            playThud();
+            const conf = hazardConfigs[currentHazardMode];
+            
+            const el1 = document.getElementById('t-a-1');
+            const el2 = document.getElementById('t-a-2');
+            if(el1) el1.textContent = "ALLOCATED (MAX)";
+            if(el2) el2.textContent = "DEPLOYED";
+
+            showDynamicIsland(`DISPATCHED: ${conf.assets[0].name.toUpperCase()} TO SECTOR 4`);
+            rerouteAssets();
+        }
+
+        // Direct DOM mutation for 120fps tabs
+        function switchTab(tabId) {
+            playThud(); 
+            
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if(targetTab) targetTab.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('obsidian-glass', 'text-white', 'border-white/5');
+                btn.classList.add('text-slate-400', 'border-transparent');
+                if (btn.id === 'nav-triage') { btn.querySelector('div').classList.add('gap-4'); } 
+                else { btn.classList.add('gap-4'); }
+            });
+            
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400', 'border-transparent');
+                activeBtn.classList.add('obsidian-glass', 'text-white');
+            }
+
+            document.querySelectorAll('.mob-nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-brandCyan');
+                btn.classList.add('text-slate-500');
+                const label = btn.querySelector('span:last-child');
+                if(label) { label.classList.remove('font-bold'); label.classList.add('font-medium'); }
+            });
+
+            const activeMobBtn = document.getElementById(`mob-nav-${tabId}`);
+            if(activeMobBtn) {
+                activeMobBtn.classList.remove('text-slate-500');
+                activeMobBtn.classList.add('active', 'text-brandCyan');
+                const label = activeMobBtn.querySelector('span:last-child');
+                if(label) { label.classList.remove('font-medium'); label.classList.add('font-bold'); }
+            }
+
+            if(tabId === 'map') {
+                if(!mapInitialized) { initMap(); mapInitialized = true; }
+                requestAnimationFrame(() => { requestAnimationFrame(() => { if(map) { map.invalidateSize(); map.setView([currentLat, currentLon]); } }); });
+            }
+        }
+
+        // --- SOS Transmission ---
+        function updateHudSosCount() {
+            const countEl = document.getElementById('hud-beacon-count');
+            if (countEl) { countEl.textContent = `${triageCount} Verified Beacons`; }
+        }
+
+        const btnTransmit = document.getElementById('btn-transmit');
+        if(btnTransmit) {
+            btnTransmit.addEventListener('click', () => {
+                playEmergencyPulse(); 
+                
+                triageCount++;
+                const badgeDesk = document.getElementById('triage-badge');
+                const badgeMob = document.getElementById('mob-triage-badge');
+                if (badgeDesk) badgeDesk.textContent = triageCount;
+                if (badgeMob) badgeMob.textContent = triageCount;
+                updateHudSosCount();
+
+                requestAnimationFrame(() => { requestAnimationFrame(() => {
+                    if (badgeDesk) { badgeDesk.classList.remove('animate-badge'); void badgeDesk.offsetWidth; badgeDesk.classList.add('animate-badge'); }
+                    if (badgeMob) { badgeMob.classList.remove('animate-badge'); void badgeMob.offsetWidth; badgeMob.classList.add('animate-badge'); }
+                });});
+
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+                const safeHaz = selectedSosHazard.replace(/[^a-zA-Z0-9]/g, '_').toUpperCase();
+                const payload = `FALCON//SOS#PRI:${selectedSosPriority}#HAZ:${safeHaz}#SOULS:${sosSoulsCount}#LAT:${currentLat.toFixed(4)}#LON:${currentLon.toFixed(4)}#TIME:IST`;
+                
+                if (isMobile && !navigator.onLine) { 
+                    window.location.href = "sms:112?body=" + encodeURIComponent(payload); 
+                    showDynamicIsland('SMS BRIDGE ENGAGED'); 
+                } else {
+                    const modal = document.getElementById('gsm-modal-desktop');
+                    const pl = document.getElementById('desktop-sms-payload');
+                    const title = document.getElementById('desktop-sms-title');
+                    const desc = document.getElementById('desktop-sms-desc');
+
+                    if(pl) pl.textContent = payload;
+                    if(title) title.textContent = navigator.onLine ? "SOS TRANSMITTED // QUEUED TO NDRF COMMAND" : "CRITICAL: CELLULAR DOWN // 2G GSM BRIDGE ENGAGED";
+                    if(desc) desc.textContent = navigator.onLine ? "TARGET: SECURE COMMAND GRID" : "TARGET: 112 (NATIONAL DISASTER RESPONSE)";
+                    
+                    if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+                    showDynamicIsland('BEACON SYNCHRONIZED');
+                }
+            });
+        }
+
+        function dismissGsmModal() {
+            playThud();
+            const modal = document.getElementById('gsm-modal-desktop');
+            if(modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        }
+
+        // --- DYNAMIC MULTI-HAZARD TACTICAL MAP RENDERING ---
+        function initMap() {
+            map = L.map('map-container', { zoomControl: false, attributionControl: true }).setView([currentLat, currentLon], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap', className: 'tactical-dark-tiles', maxZoom: 18 }).addTo(map);
+            tacticalLayers = L.layerGroup().addTo(map);
+            renderTacticalMapAssets();
+
+            setInterval(() => {
+                if(mapInitialized && unitAlphaMarker && currentHazardMode === 'flood') {
+                    boatLat += boatDirLat; boatLon += boatDirLon;
+                    if(boatLat < currentLat - 0.05 || boatLat > currentLat + 0.01) boatDirLat *= -1;
+                    if(boatLon < currentLon - 0.08 || boatLon > currentLon - 0.02) boatDirLon *= -1;
+                    unitAlphaMarker.setLatLng([boatLat, boatLon]);
+                }
+            }, 2500);
+        }
+
+        function renderTacticalMapAssets() {
+            if(!tacticalLayers || !map) return;
+            tacticalLayers.clearLayers();
+
+            const lat = currentLat; const lon = currentLon;
+            const conf = hazardConfigs[currentHazardMode];
+
+            // Render Dynamic Legend
+            const legendHtml = conf.mapLegend.map(l => `<div class="flex items-center gap-3 text-[9px] md:text-[10px] font-mono tracking-widest text-slate-300 uppercase">${l.icon} ${l.text}</div>`).join('');
+            const legendEl = document.getElementById('map-legend');
+            if(legendEl) legendEl.innerHTML = legendHtml;
+
+            // Hazard Polygons / Visuals
+            if (currentHazardMode === 'flood') {
+                const s4Coords = [[lat - 0.03, lon - 0.08], [lat + 0.01, lon - 0.08], [lat + 0.01, lon - 0.03], [lat - 0.03, lon - 0.03]];
+                const s2Coords = [[lat + 0.02, lon - 0.08], [lat + 0.05, lon - 0.08], [lat + 0.05, lon - 0.03], [lat + 0.02, lon - 0.03]];
+                L.polygon(s4Coords, { color: 'transparent', fillColor: '#EF4444', fillOpacity: 0.15, className: 'svg-pulse-critical' }).addTo(tacticalLayers).bindTooltip("SECTOR 4 [CRITICAL]", { permanent: true, direction: 'center', className: 'tactical-label text-brandRed' }).on('click', () => openXaiModal('sector-4'));
+                L.polygon(s2Coords, { color: 'transparent', fillColor: '#F97316', fillOpacity: 0.15, className: 'svg-pulse-high' }).addTo(tacticalLayers).bindTooltip("SECTOR 2 [HIGH]", { permanent: true, direction: 'center', className: 'tactical-label text-brandOrange' }).on('click', () => openXaiModal('sector-2'));
+            } 
+            else if (currentHazardMode === 'cyclone') {
+                L.circle([lat - 0.05, lon + 0.08], { radius: 12000, color: '#06B6D4', fillColor: '#06B6D4', fillOpacity: 0.1, className: 'svg-storm-swath' }).addTo(tacticalLayers).bindTooltip("WIND SWATH CORE [145km/h]", { permanent: true, direction: 'center', className: 'tactical-label text-brandCyan' });
+                L.circle([lat, lon], { radius: 18000, color: '#8B5CF6', weight: 1, dashArray: '10, 10', fillOpacity: 0 }).addTo(tacticalLayers);
+            }
+            else if (currentHazardMode === 'heatwave') {
+                L.circle([lat + 0.02, lon - 0.02], { radius: 4000, color: 'transparent', fillColor: '#EF4444', fillOpacity: 0.3, className: 'svg-heat-glow' }).addTo(tacticalLayers).bindTooltip("URBAN HEAT ISLAND [+4°C]", { permanent: true, direction: 'center', className: 'tactical-label text-brandRed' });
+                L.circle([lat - 0.04, lon + 0.03], { radius: 3000, color: 'transparent', fillColor: '#F59E0B', fillOpacity: 0.3, className: 'svg-heat-glow' }).addTo(tacticalLayers);
+            }
+            else if (currentHazardMode === 'lightning') {
+                for(let i=0; i<8; i++) {
+                    const rLat = lat + (Math.random() * 0.1) - 0.05;
+                    const rLon = lon + (Math.random() * 0.1) - 0.05;
+                    L.circleMarker([rLat, rLon], { radius: 4, color: '#EAB308', fillColor: '#EAB308', fillOpacity: 1, className: 'svg-lightning' }).addTo(tacticalLayers);
+                }
+                L.polygon([[lat - 0.02, lon + 0.02], [lat + 0.02, lon + 0.02], [lat + 0.02, lon + 0.05], [lat - 0.02, lon + 0.05]], { color: '#EF4444', weight: 1, dashArray: '5 5', fillOpacity: 0.1 }).addTo(tacticalLayers).bindTooltip("HIGH FIRE RISK ZONE", { permanent: true, direction: 'center', className: 'tactical-label text-brandRed' });
+            }
+            else if (currentHazardMode === 'landslide') {
+                const slopeCoords = [[lat + 0.02, lon - 0.06], [lat + 0.04, lon - 0.04], [lat + 0.01, lon - 0.01]];
+                L.polygon(slopeCoords, { color: '#F97316', fillColor: '#F97316', fillOpacity: 0.2, weight: 2 }).addTo(tacticalLayers).bindTooltip("UNSTABLE SLOPE [FAILURE IMMINENT]", { permanent: true, direction: 'center', className: 'tactical-label text-brandOrange' }).on('click', () => openXaiModal('sector-4'));
+            }
+
+            const createMarker = (initial, cClass) => L.divIcon({ className: '', html: `<div class="w-6 h-6 bg-[#030507] border border-${cClass} flex items-center justify-center text-${cClass} font-mono text-[9px] rounded shadow-[0_0_10px_rgba(0,0,0,0.4)] backdrop-blur gpu-layer">${initial}</div>`, iconSize: [24, 24], iconAnchor: [12, 12] });
+            L.marker([lat + 0.04, lon - 0.02], {icon: createMarker('A', conf.colorClass)}).addTo(tacticalLayers).bindTooltip(`<div class='font-mono text-[9px] leading-relaxed text-slate-200'><b>Shelter Alpha</b><br/>Cap: 420/600 (70%)<br/>Power: Aux Gen Online<br/>Med Triage: Active</div>`, { className: `obsidian-glass border-${conf.colorClass} text-${conf.colorClass}` });
+            L.marker([lat - 0.04, lon + 0.04], {icon: createMarker('B', conf.colorClass)}).addTo(tacticalLayers).bindTooltip(`<div class='font-mono text-[9px] leading-relaxed text-slate-200'><b>Shelter Beta</b><br/>Cap: 45/500 (9%)<br/>Power: Grid Active<br/>Med Triage: Standby</div>`, { className: `obsidian-glass border-${conf.colorClass} text-${conf.colorClass}` });
+
+            if(currentHazardMode !== 'cyclone' && currentHazardMode !== 'lightning') {
+                L.polyline([[lat - 0.01, lon - 0.06], [lat + 0.01, lon - 0.04], [lat + 0.04, lon - 0.02]], { color: '#10B981', weight: 3, className: 'route-glow-green', lineCap: 'round', lineJoin: 'round' }).addTo(tacticalLayers).bindTooltip("<div class='font-mono text-[9px] leading-relaxed text-slate-200'><b>CORRIDOR ALPHA</b><br/>Status: OPEN</div>", { sticky: true, className: 'obsidian-glass border-brandGreen shadow-[0_0_15px_rgba(16,185,129,0.3)]' });
+            }
+
+            const createVehIcon = (iconStr, colorClass, animationClass) => L.divIcon({ className: '', html: `<div class="w-8 h-8 bg-black/60 border border-${colorClass} flex items-center justify-center text-white text-lg rounded-full backdrop-blur vehicle-marker cursor-pointer ${animationClass} gpu-layer">${iconStr}</div>`, iconSize: [32, 32], iconAnchor: [16, 16] });
+            
+            const v1 = conf.vehicles[0]; const v2 = conf.vehicles[1]; const v3 = conf.vehicles[2];
+            
+            unitAlphaMarker = L.marker([lat - 0.02, lon - 0.05], { icon: createVehIcon(v1.icon, v1.color, v1.anim) }).addTo(tacticalLayers);
+            unitAlphaMarker.bindTooltip(`<div class='font-mono text-[10px] font-bold text-${v1.color}'>[${v1.title}]<br/><span class='text-white font-medium'>${v1.target}</span></div>`, { direction: 'top', className: `obsidian-glass border-${v1.color}` });
+            unitAlphaMarker.on('click', () => openVehicleModal(v1.title, v1.type, v1.fuel, v1.crew, v1.target));
+
+            unitBetaMarker = L.marker([lat + 0.039, lon - 0.025], { icon: createVehIcon(v2.icon, v2.color, v2.anim) }).addTo(tacticalLayers);
+            unitBetaMarker.bindTooltip(`<div class='font-mono text-[10px] font-bold text-${v2.color}'>[${v2.title}]<br/><span class='text-white font-medium'>${v2.target}</span></div>`, { direction: 'top', className: `obsidian-glass border-${v2.color}` });
+            unitBetaMarker.on('click', () => openVehicleModal(v2.title, v2.type, v2.fuel, v2.crew, v2.target));
+
+            unitGammaMarker = L.marker([lat + 0.02, lon - 0.01], { icon: createVehIcon(v3.icon, v3.color, v3.anim) }).addTo(tacticalLayers);
+            unitGammaMarker.bindTooltip(`<div class='font-mono text-[10px] font-bold text-${v3.color}'>[${v3.title}]<br/><span class='text-white font-medium'>${v3.target}</span></div>`, { direction: 'top', className: `obsidian-glass border-${v3.color}` });
+            unitGammaMarker.on('click', () => openVehicleModal(v3.title, v3.type, v3.fuel, v3.crew, v3.target));
+
+            userMarker = L.marker([lat, lon], { icon: L.divIcon({className: '', html: `<div class="w-4 h-4 bg-${conf.colorClass} rounded-full border-2 border-white shadow-[0_0_15px_${conf.hex}80] gps-beacon-pulse gpu-layer"></div>`, iconSize: [16,16], iconAnchor: [8,8]}), zIndexOffset: 1000 }).addTo(tacticalLayers);
+            userMarker.bindTooltip(`<div class='font-mono text-[10px] font-bold text-white'>DEVICE GROUND ZERO<br/><span class='text-${conf.colorClass} font-medium'>(LIVE GPS)</span></div>`, { permanent: true, direction: 'bottom', offset: [0, 10], className: 'tactical-label text-white' });
+        }
+
+        const sarToggle = document.getElementById('sar-toggle');
+        if(sarToggle) {
+            sarToggle.addEventListener('change', function(e) {
+                playThud();
+                const isEnabled = e.target.checked;
+                requestAnimationFrame(() => {
+                    if (isEnabled && map && sarLayer) { map.addLayer(sarLayer); } 
+                    else if (!isEnabled && map && sarLayer) { map.removeLayer(sarLayer); }
+                });
+            });
+        }
+
+        // --- Falcon Advisory (Tab 4) AI Co-Pilot Logic ---
+        function triggerAdvisory(text) {
+            playThud();
+            const input = document.getElementById('advisory-input');
+            if(input) { input.value = text.replace(/^[^\s]+\s/, ''); submitAdvisoryQuery(text); input.value = ''; }
+        }
+
+        function handleAdvisoryEnter(e) {
+            if (e.key === 'Enter') submitAdvisoryQuery();
+        }
+
+        async function submitAdvisoryQuery(overrideQuery = null) {
+            const input = document.getElementById('advisory-input');
+            if(!input && !overrideQuery) return;
+            const query = overrideQuery || input.value.trim();
+            if(!query) return;
+            
+            playThud();
+            if(!overrideQuery && input) input.value = '';
+            
+            const stage = document.getElementById('advisory-chat-stage');
+            if(!stage) return;
+            const conf = hazardConfigs[currentHazardMode];
+            
+            const userCard = document.createElement('div');
+            userCard.className = `chat-memo-card user max-w-[90%] md:max-w-[85%] self-end gpu-layer animate-fade-in-up border-${conf.colorClass}/20 bg-${conf.colorClass}/5`;
+            userCard.textContent = query;
+            stage.appendChild(userCard); stage.scrollTop = stage.scrollHeight;
+
+            const aiCard = document.createElement('div');
+            aiCard.className = `chat-memo-card max-w-[90%] md:max-w-[85%] self-start gpu-layer border-l-2 border-l-${conf.colorClass}`;
+            aiCard.innerHTML = `<div class="flex items-center gap-2 mb-3 md:mb-4 border-b border-white/5 pb-2 md:pb-3"><span class="text-${conf.colorClass} text-[9px] md:text-[10px] font-mono font-bold tracking-widest uppercase">// Falcon Advisory Protocol:</span></div><div class="response-text flex flex-col gap-3 md:gap-4 text-slate-400 animate-pulse text-xs md:text-sm">[ANALYZING CONTEXT...]</div>`;
+            stage.appendChild(aiCard); stage.scrollTop = stage.scrollHeight;
+
+            const responseTextEl = aiCard.querySelector('.response-text');
+
+            if (!navigator.onLine || !GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
+                const responseData = getOfflineTacticalResponse(query);
+                renderTacticalResponse(responseData, responseTextEl, stage);
+            } else {
+                try {
+                    const prompt = `Act as an authoritative NDRF-grade crisis protocol AI handling a ${conf.title} event. Respond to this emergency query: "${query}". You must strictly follow this exact format and use these exact brackets:
+[DIRECT DIRECTIVE] (Immediate 60-second survival directive)
+[CRITICAL HAZARD VECTOR] (What NOT to touch or do - isolation rules)
+[IMMEDIATE PROTOCOL] (High-ground or tactical escalation steps)`;
+
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2 } })
+                    });
+
+                    if (!res.ok) throw new Error("API Connection Failed");
+                    const data = await res.json();
+                    const aiText = data.candidates[0].content.parts[0].text;
+                    const parsedBlocks = parseAITextToBlocks(aiText);
+                    
+                    if(parsedBlocks.length > 0) renderTacticalResponse(parsedBlocks, responseTextEl, stage);
+                    else throw new Error("Parsing Format Failed");
+                } catch (err) {
+                    console.warn("API Error, falling back to secure tactical offline logic:", err);
+                    renderTacticalResponse(getOfflineTacticalResponse(query), responseTextEl, stage);
+                }
+            }
+        }
+
+        function parseAITextToBlocks(text) {
+            const blocks = []; const regex = /\[(.*?)\](.*?)(?=\[|$)/gs; let match;
+            while ((match = regex.exec(text)) !== null) { blocks.push({ label: `[${match[1].trim()}]`, text: match[2].trim().replace(/\n/g, '<br>') }); }
+            return blocks;
+        }
+
+        function getOfflineTacticalResponse(query) {
+            const conf = hazardConfigs[currentHazardMode];
+            return [
+                { label: '[DIRECT DIRECTIVE]', text: `Executing offline heuristics for ${conf.title}. Secure immediate perimeter and preserve mobile battery.` },
+                { label: '[CRITICAL HAZARD VECTOR]', text: `Avoid primary exposure vectors associated with ${conf.title}. Do not initiate unverified movement.` },
+                { label: '[IMMEDIATE PROTOCOL]', text: '1. Maintain secure position.<br>2. Broadcast Citizen SOS via Tab 1 to alert command of exact telemetry.' }
+            ];
+        }
+
+        function renderTacticalResponse(responseData, responseTextEl, stage) {
+            responseTextEl.innerHTML = ''; responseTextEl.classList.remove('animate-pulse', 'text-slate-400');
+            const conf = hazardConfigs[currentHazardMode];
+            let step = 0;
+            const revealInterval = setInterval(() => {
+                if(step >= responseData.length) { clearInterval(revealInterval); return; }
+                const block = responseData[step];
+                
+                let labelColor = `text-${conf.colorClass}`;
+                if(block.label.includes("CRITICAL") || block.label.includes("DIRECTIVE")) labelColor = "text-brandRed";
+                if(block.label.includes("PROTOCOL") || block.label.includes("ESCALATION")) labelColor = "text-brandAmber";
+
+                const blockHtml = `<div class="animate-fade-in-up"><span class="${labelColor} font-mono font-bold tracking-widest text-[9px] md:text-[10px] block mb-1">${block.label}</span><span class="text-slate-200 text-xs md:text-sm leading-relaxed">${block.text}</span></div>`;
+                responseTextEl.insertAdjacentHTML('beforeend', blockHtml);
+                stage.scrollTop = stage.scrollHeight;
+                playThud(); step++;
+            }, 450);
+        }
+    </script>
+    <script>
+    // Targeted Transmission: Sirf TRANSMIT SOS click hone par chalega aur alert dega
+    const transmitBtn = document.getElementById('btn-transmit');
+    if (transmitBtn) {
+        transmitBtn.addEventListener('click', async function () {
+            // Frontend UI ke actual variables read karna
+            const payload = {
+                priority: selectedSosPriority || "CRITICAL",
+                hazard_type: selectedSosHazard || "FLOOD / RISING WATER",
+                souls: sosSoulsCount || 1,
+                latitude: currentLat || 20.2961,
+                longitude: currentLon || 85.8245,
+                description: `Emergency distress reported for ${selectedSosHazard} with ${sosSoulsCount} soul(s) affected.`
+            };
+
+            try {
+                const response = await fetch("/api/sos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const resData = await response.json();
+                    alert(`✅ SOS Database mein successfully transmit ho gaya!\nIncident ID: ${resData.incident_id}\nHazard: ${payload.hazard_type}\nSouls: ${payload.souls}`);
+                }
+            } catch (err) {
+                console.error("SOS transmission error:", err);
+            }
+        });
+    }
+    </script>
+</body>
+</html>
