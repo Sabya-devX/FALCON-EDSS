@@ -525,7 +525,12 @@
                     <!-- STEP 3: TRANSMIT -->
                     <div class="obsidian-glass cinematic-hover rounded-2xl p-6 md:p-8 gpu-layer flex flex-col items-center">
                         <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 text-center">Step 3: Instant Transmit</h3>
-                        
+                        <!-- START: NEW NAME & NUMBER INPUTS -->
+<div class="flex flex-col sm:flex-row gap-3 w-full mb-4">
+    <input type="text" id="sos-name" placeholder="👤 Caller Name (Quick)" class="flex-1 bg-black/40 border border-white/10 rounded-lg p-3 text-white text-xs md:text-sm focus:border-brandCyan focus:outline-none transition-colors" required>
+    <input type="tel" id="sos-contact" placeholder="📞 Contact Number" pattern="[0-9]{10}" class="flex-1 bg-black/40 border border-white/10 rounded-lg p-3 text-white text-xs md:text-sm focus:border-brandCyan focus:outline-none transition-colors" required>
+</div>
+<!-- END: NEW NAME & NUMBER INPUTS -->                        
                         <div class="w-full bg-black/40 rounded-lg border border-white/5 p-4 mb-6 flex items-center justify-between">
                             <span class="text-[10px] font-mono tracking-widest text-slate-400 uppercase">GPS Anchor</span>
                             <span id="sos-location-display" class="text-[10px] md:text-xs font-mono font-bold text-brandGreen flex items-center gap-2">
@@ -2144,9 +2149,15 @@
     if (transmitBtn) {
         transmitBtn.addEventListener('click', async function () {
             // Frontend UI ke actual variables read karna
-            const payload = {
-                priority: selectedSosPriority || "CRITICAL",
-                hazard_type: selectedSosHazard || "FLOOD / RISING WATER",
+            // Get Name and Contact
+const callerName = document.getElementById('sos-name').value || "Anonymous";
+const callerContact = document.getElementById('sos-contact').value || "N/A";
+
+const payload = {
+    name: callerName,
+    contact: callerContact,
+    priority: selectedSosPriority || "CRITICAL",
+    hazard_type: selectedSosHazard || "FLOOD / RISING WATER",
                 souls: sosSoulsCount || 1,
                 latitude: currentLat || 20.2961,
                 longitude: currentLon || 85.8245,
@@ -2162,7 +2173,7 @@
 
                 if (response.ok) {
                     const resData = await response.json();
-                    alert(`✅ SOS Database mein successfully transmit ho gaya!\nIncident ID: ${resData.incident_id}\nHazard: ${payload.hazard_type}\nSouls: ${payload.souls}`);
+                    alert(`✅ SOS is successfully transmitted to database!\nIncident ID: ${resData.incident_id}\nName: ${payload.name}\nContact: ${payload.contact}\nHazard: ${payload.hazard_type}`);
                 }
             } catch (err) {
                 console.error("SOS transmission error:", err);
