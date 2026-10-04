@@ -2148,16 +2148,32 @@
     const transmitBtn = document.getElementById('btn-transmit');
     if (transmitBtn) {
         transmitBtn.addEventListener('click', async function () {
-            // Frontend UI ke actual variables read karna
-            // Get Name and Contact
-const callerName = document.getElementById('sos-name').value || "Anonymous";
-const callerContact = document.getElementById('sos-contact').value || "N/A";
+            
+            const nameInput = document.getElementById('sos-name');
+            const contactInput = document.getElementById('sos-contact');
 
-const payload = {
-    name: callerName,
-    contact: callerContact,
-    priority: selectedSosPriority || "CRITICAL",
-    hazard_type: selectedSosHazard || "FLOOD / RISING WATER",
+            const nameVal = nameInput ? nameInput.value.trim() : "";
+            const contactVal = contactInput ? contactInput.value.trim() : "";
+
+            // 1. Check karo box khali toh nahi
+            if (nameVal === "" || contactVal === "") {
+                alert("⚠️ ACTION REQUIRED: Please enter your Name and Contact Number.");
+                return;
+            }
+
+            // 2. Check karo ki strictly 10 digits ka NUMBER hi ho (Letters not allowed)
+            const phoneRegex = /^[0-9]{10}$/;
+            if (!phoneRegex.test(contactVal)) {
+                alert("⚠️ INVALID INPUT: Contact number must be exactly 10 digits.");
+                return;
+            }
+
+            // Sab theek hai, ab payload banao
+            const payload = {
+                name: nameVal,
+                contact: contactVal,
+                priority: selectedSosPriority || "CRITICAL",
+                hazard_type: selectedSosHazard || "FLOOD / RISING WATER",
                 souls: sosSoulsCount || 1,
                 latitude: currentLat || 20.2961,
                 longitude: currentLon || 85.8245,
@@ -2173,10 +2189,15 @@ const payload = {
 
                 if (response.ok) {
                     const resData = await response.json();
-                    alert(`✅ SOS is successfully transmitted to database!\nIncident ID: ${resData.incident_id}\nName: ${payload.name}\nContact: ${payload.contact}\nHazard: ${payload.hazard_type}`);
+                    alert(`✅ SOS Database mein successfully transmit ho gaya!\nIncident ID: ${resData.incident_id}\nName: ${payload.name}\nContact: ${payload.contact}\nHazard: ${payload.hazard_type}`);
+                    
+                    // Transmit hone ke baad box wapas khali kar do taaki agla SOS aasaani se bheja ja sake
+                    if (nameInput) nameInput.value = "";
+                    if (contactInput) contactInput.value = "";
                 }
             } catch (err) {
                 console.error("SOS transmission error:", err);
+                alert("⚠️ Server Connect nahi ho raha! Dekho terminal mein server chalu hai ya nahi.");
             }
         });
     }
