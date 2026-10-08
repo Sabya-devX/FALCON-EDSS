@@ -248,16 +248,21 @@
         #aperture { transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity, filter; }
         .aperture-expand { transform: scale3d(2.5, 2.5, 1) !important; opacity: 0 !important; filter: blur(12px) !important; }
         
-        /* Chat UI & JSON Highlights */
-        .chat-memo-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 0.75rem; padding: 1.25rem; color: #CBD5E1; font-size: 0.875rem; line-height: 1.6; }
-        .chat-memo-card.user { background: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.2); padding: 1rem 1.25rem; }
+        /* Chat UI, Premium Dark Scrollbar & JSON Highlights */
+        #advisory-chat-stage::-webkit-scrollbar { width: 6px; }
+        #advisory-chat-stage::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        #advisory-chat-stage::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.3); border-radius: 10px; }
+        #advisory-chat-stage::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.6); }
+
+        .chat-memo-card { background: rgba(14, 20, 32, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1rem; padding: 1.25rem; color: #E2E8F0; font-size: 0.875rem; line-height: 1.7; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .chat-memo-card.user { background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.2); padding: 1rem 1.25rem; border-bottom-right-radius: 0.25rem; }
+        .chat-memo-card:not(.user) { border-left: 2px solid #06B6D4; border-bottom-left-radius: 0.25rem; }
         .json-key { color: #94A3B8; } .json-string { color: #10B981; } .json-number { color: #06B6D4; } .json-boolean { color: #F59E0B; } .json-null { color: #EF4444; } 
         .mob-nav-btn.active { color: #06B6D4; } .mob-nav-btn.active span:last-child { color: #fff; font-weight: 700; }
     </style>
 </head>
 <body class="h-screen w-screen box-border selection:bg-brandCyan selection:text-white relative">
-
-   <!-- GLOBAL SIREN BANNER -->
+  <!-- GLOBAL SIREN BANNER -->
     <div id="siren-banner" class="fixed top-0 left-0 w-full bg-brandRed text-white z-[10001] flex items-center justify-center p-3">
         <div class="flex items-center gap-4 font-mono font-bold tracking-widest text-xs md:text-sm uppercase">
             <span class="animate-pulse">🚨</span>
@@ -713,14 +718,22 @@
                         </div>
                     </div>
 
-                    <!-- Input Dock -->
-                    <div class="obsidian-glass cinematic-hover rounded-2xl p-3 md:p-4 flex flex-col sm:flex-row gap-3 md:gap-4 gpu-layer flex-shrink-0">
-                        <div class="input-container flex-1 flex items-center min-h-[44px]">
-                            <input type="text" id="advisory-input" placeholder="Describe situation or ask protocol..." class="text-xs md:text-sm font-medium tracking-wide w-full" onkeypress="handleAdvisoryEnter(event)">
-                            <div class="input-laser"></div>
+                    <!-- Premium Input Dock -->
+                    <div class="obsidian-glass cinematic-hover rounded-2xl p-2 md:p-3 flex items-center gap-2 md:gap-3 gpu-layer flex-shrink-0 mt-2 border border-white/10">
+                        
+                        <!-- Mic Button -->
+                        <button type="button" id="advisory-mic-btn" onclick="toggleAdvisoryVoice()" class="text-slate-400 hover:text-brandCyan transition-colors focus:outline-none p-3 rounded-xl bg-black/40 hover:bg-black/60 shadow-inner" title="Voice Input">
+                            <span id="mic-icon" class="text-lg">🎙️</span>
+                        </button>
+                        
+                        <!-- Dark Transparent Input Box -->
+                        <div class="flex-1 bg-black/40 border border-white/5 rounded-xl h-full flex items-center px-4 py-3 shadow-inner">
+                            <input type="text" id="advisory-input" placeholder="Type situation or use mic..." class="bg-transparent text-white text-xs md:text-sm font-medium tracking-wide w-full outline-none placeholder:text-slate-500" onkeypress="handleAdvisoryEnter(event)">
                         </div>
-                        <button onclick="submitAdvisoryQuery()" class="spring-interactive bg-white/10 hover:bg-white/15 text-white font-semibold tracking-widest text-xs px-6 py-3 rounded-xl border border-white/20 shadow-inner min-h-[44px] focus:outline-none">
-                            REQUEST
+                        
+                        <!-- Request Button -->
+                        <button onclick="submitAdvisoryQuery()" class="spring-interactive bg-brandCyan/20 hover:bg-brandCyan/30 text-brandCyan font-bold tracking-widest text-xs px-5 py-3.5 rounded-xl border border-brandCyan/30 shadow-[0_0_15px_rgba(6,182,212,0.15)] focus:outline-none transition-all">
+                            SEND
                         </button>
                     </div>
                 </div>
@@ -761,7 +774,7 @@
     <!-- Application Logic -->
     <script>
         // --- API KEY CONFIGURATION ---
-        const GEMINI_API_KEY = "YOUR_API_KEY_HERE";
+        const GEMINI_API_KEY = "API key";
 
         // --- Global Telemetry State ---
         let currentLat = 0;
@@ -2054,6 +2067,77 @@
         function handleAdvisoryEnter(e) {
             if (e.key === 'Enter') submitAdvisoryQuery();
         }
+        // --- ADVISORY VOICE INPUT ENGINE ---
+    let advisoryRecognition = null;
+    let isAdvisoryListening = false;
+
+    function toggleAdvisoryVoice() {
+        playThud();
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("⚠️ Voice input requires Google Chrome.");
+            return;
+        }
+
+        const micIcon = document.getElementById('mic-icon');
+        const inputField = document.getElementById('advisory-input');
+
+        if (isAdvisoryListening) {
+            if (advisoryRecognition) advisoryRecognition.stop();
+            return;
+        }
+
+        advisoryRecognition = new SpeechRecognition();
+        advisoryRecognition.lang = 'hi-IN'; // Hinglish & English capture
+        advisoryRecognition.continuous = false;
+        advisoryRecognition.interimResults = true;
+
+        advisoryRecognition.onstart = () => {
+            isAdvisoryListening = true;
+            if (micIcon) {
+                micIcon.textContent = "🔴";
+                micIcon.classList.add("animate-pulse");
+            }
+            if (inputField) inputField.placeholder = "Listening to your emergency...";
+        };
+
+        advisoryRecognition.onresult = (event) => {
+            let transcript = "";
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            if (inputField) inputField.value = transcript;
+        };
+
+        advisoryRecognition.onerror = () => {
+            resetMicUI();
+        };
+
+        advisoryRecognition.onend = () => {
+            resetMicUI();
+            // Agar user ne kuch bola hai, toh direct query submit ho jaye
+            if (inputField && inputField.value.trim().length > 2) {
+                submitAdvisoryQuery();
+            }
+        };
+
+        try {
+            advisoryRecognition.start();
+        } catch(e) {
+            resetMicUI();
+        }
+    }
+
+    function resetMicUI() {
+        isAdvisoryListening = false;
+        const micIcon = document.getElementById('mic-icon');
+        const inputField = document.getElementById('advisory-input');
+        if (micIcon) {
+            micIcon.textContent = "🎙️";
+            micIcon.classList.remove("animate-pulse");
+        }
+        if (inputField) inputField.placeholder = "Describe situation or ask protocol...";
+    }
 
         async function submitAdvisoryQuery(overrideQuery = null) {
             const input = document.getElementById('advisory-input');
@@ -2117,13 +2201,28 @@
 
         function getOfflineTacticalResponse(query) {
             const conf = hazardConfigs[currentHazardMode];
-            return [
-                { label: '[DIRECT DIRECTIVE]', text: `Executing offline heuristics for ${conf.title}. Secure immediate perimeter and preserve mobile battery.` },
-                { label: '[CRITICAL HAZARD VECTOR]', text: `Avoid primary exposure vectors associated with ${conf.title}. Do not initiate unverified movement.` },
-                { label: '[IMMEDIATE PROTOCOL]', text: '1. Maintain secure position.<br>2. Broadcast Citizen SOS via Tab 1 to alert command of exact telemetry.' }
-            ];
+            const q = query.toLowerCase();
+            
+            if (q.includes("flood") || q.includes("paani") || q.includes("water") || q.includes("baarish")) {
+                return [
+                    { label: '[SITUATION ANALYSIS]', text: `Heavy water influx detected. Primary risk: Structural undermining and waterborne pathogens. Current location telemetry indicates you are in a vulnerable low-elevation zone.` },
+                    { label: '[DIRECT DIRECTIVE]', text: `Move to the highest concrete structure immediately. Do NOT attempt to walk or drive through moving floodwaters (15cm of fast water can knock an adult down).` },
+                    { label: '[IMMEDIATE PROTOCOL]', text: '1. Switch off main power breaker to prevent electrocution.<br>2. Fill clean containers with drinking water.<br>3. Keep emergency kit and identification wrapped in plastic.<br>4. Await NDRF boat units currently deployed in your sector.' }
+                ];
+            } else if (q.includes("medical") || q.includes("first aid") || q.includes("chot") || q.includes("injured") || q.includes("khoon")) {
+                return [
+                    { label: '[MEDICAL TRIAGE ACTIVATED]', text: `Assessing casualty report based on text query. Nearest ALS (Advanced Life Support) unit is on standby in your sector.` },
+                    { label: '[CRITICAL HAZARD VECTOR]', text: `If bleeding: Apply firm, continuous direct pressure with a clean cloth. Do NOT move the victim if spinal/neck injury is suspected unless in immediate life-threatening danger from the hazard.` },
+                    { label: '[IMMEDIATE PROTOCOL]', text: '1. Ensure airway is clear.<br>2. Keep patient warm to prevent shock.<br>3. Broadcast exact SOS from Tab 1 to lock your GPS for the incoming medical team.' }
+                ];
+            } else {
+                return [
+                    { label: '[TACTICAL ASSESSMENT]', text: `Analyzing parameters for ${conf.title}. Local environmental sensors indicate high risk. Standard operational procedures must be enforced.` },
+                    { label: '[DIRECT DIRECTIVE]', text: `Secure your immediate perimeter. Minimize device usage to conserve battery for SOS GPS locking.` },
+                    { label: '[IMMEDIATE PROTOCOL]', text: '1. Stay indoors and away from vulnerable structures (windows/weak roofs).<br>2. Keep a battery-operated radio tuned to local emergency frequencies.<br>3. Do NOT initiate unverified movement until official evacuation orders are broadcast.' }
+                ];
+            }
         }
-
         function renderTacticalResponse(responseData, responseTextEl, stage) {
             responseTextEl.innerHTML = ''; responseTextEl.classList.remove('animate-pulse', 'text-slate-400');
             const conf = hazardConfigs[currentHazardMode];
