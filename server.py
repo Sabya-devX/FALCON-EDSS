@@ -15,7 +15,6 @@ from pydantic import BaseModel
 # 1. CORE APPLICATION & MIDDLEWARE
 # ==========================================
 app = FastAPI(title="FALCON EDSS // Mission Control Backend", version="2.5.0")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -205,6 +204,9 @@ async def view_database():
                     <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 13px;">High-Speed In-Memory State Ledger (Zero Disk Overhead)</p>
                 </div>
                 <div style="display: flex; align-items: center;">
+                <a href="/?access=ndrf_admin_secure" target="_blank" style="margin-right: 12px; background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.4); padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: bold; text-decoration: none; font-family: monospace; box-shadow: 0 0 10px rgba(6,182,212,0.2); display: inline-flex; align-items: center; gap: 6px;">
+                        🚨 OPEN COMMANDER HUD ↗
+                    </a>
                     <span class="badge">● LIVE TELEMETRY SYNC</span>
                     <button class="demo-btn" onclick="triggerFakeDisaster()">🚨 DEMO: SIMULATE DISASTER</button>
                 </div>
