@@ -44,7 +44,8 @@ fleet_state = {
 BASE_DIR = Path(__file__).resolve().parent
 
 # ==========================================
-# 3. WEBSOCKET CONNECTION MANAGER
+# FEATURE: WEBSOCKET_REALTIME_ALERTS
+# KAAM: Live clients ko bina page refresh kiye instant naye alerts push karna
 # ==========================================
 class ConnectionManager:
     def __init__(self):
@@ -76,6 +77,10 @@ env_state = {
     "danger_threshold": 4.5,
     "is_anomaly_injected": False
 }
+# ==========================================
+# FEATURE: AUTONOMOUS_ENVIRONMENT_SCANNER
+# KAAM: Background mein IoT water level scan karna aur spike aane par auto-alert trigger karna
+# ==========================================
 
 async def continuous_environmental_scanner():
     global triage_state
@@ -121,19 +126,43 @@ async def continuous_environmental_scanner():
 @app.on_event("startup")
 async def start_background_scanner():
     asyncio.create_task(continuous_environmental_scanner())
-
 # ==========================================
 # 4. PYDANTIC SCHEMAS
 # ==========================================
+class AdvisoryQuery(BaseModel):
+    query: str
+    hazard_title: str
 class DispatchPayload(BaseModel):
     sector: str
     asset_type: str
     count: int
 
 # ==========================================
-# 5. API ENDPOINTS & ZERO-STORAGE DATABASE VIEW
+# FEATURE: AI_CRISIS_ADVISORY_VAULT
+# KAAM: Gemini API key ko secure backend mein rakh kar NDRF survival protocols fetch karna
 # ==========================================
+@app.post("/api/advisory")
+async def get_advisory(payload: AdvisoryQuery):
+    GEMINI_API_KEY = "API REMOVED HERE FOR PRIVACY IN GITHUB"
+    
+    prompt = f"Act as an authoritative NDRF-grade crisis protocol AI handling a {payload.hazard_title} event. Respond to this emergency query: '{payload.query}'. You must strictly follow this exact format and use these exact brackets:\n[DIRECT DIRECTIVE] (Immediate 60-second survival directive)\n[CRITICAL HAZARD VECTOR] (What NOT to touch or do - isolation rules)\n[IMMEDIATE PROTOCOL] (High-ground or tactical escalation steps)"
 
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+    headers = {'Content-Type': 'application/json'}
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}], 
+        "generationConfig": {"temperature": 0.2}
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=body)
+        response.raise_for_status()
+        data = response.json()
+        ai_text = data["candidates"][0]["content"]["parts"][0]["text"]
+        return {"status": "success", "text": ai_text}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    
 @app.get("/")
 async def serve_frontend():
     for file in os.listdir(BASE_DIR):
@@ -144,7 +173,10 @@ async def serve_frontend():
         "error": "No HTML file found in folder",
         "files_present": os.listdir(BASE_DIR)
     }
-
+# ==========================================
+# FEATURE: COMMANDER_DATABASE_LEDGER
+# KAAM: In-memory alerts ki live HTML table dikhana aur secure commander link launch karna
+# ==========================================
 @app.get("/db", response_class=HTMLResponse)
 async def view_database():
     rows = ""
