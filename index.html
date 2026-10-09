@@ -24,7 +24,7 @@
                         brandRed: '#EF4444',
                         brandAmber: '#F59E0B',
                         brandCyan: '#06B6D4',
-                        brandGreen: '#10B981',  //jyoti shankar
+                        brandGreen: '#10B981',
                         brandOrange: '#F97316',
                         brandPurple: '#8B5CF6',
                         brandYellow: '#EAB308'
@@ -76,7 +76,7 @@
         }
 
         .obsidian-glass-button {
-            background: rgba(20, 28, 42, 0.6);//hello
+            background: rgba(20, 28, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(12px);
@@ -753,8 +753,7 @@
 
     <!-- Application Logic -->
     <script>
-        // --- API KEY CONFIGURATION ---
-        const GEMINI_API_KEY = "api key";
+
 
         // --- Global Telemetry State ---
         let currentLat = 0;
@@ -2154,28 +2153,30 @@
 
             const responseTextEl = aiCard.querySelector('.response-text');
 
-            if (!navigator.onLine || !GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
+            if (!navigator.onLine) {
                 const responseData = getOfflineTacticalResponse(query);
                 renderTacticalResponse(responseData, responseTextEl, stage);
             } else {
                 try {
-                    const prompt = `Act as an authoritative NDRF-grade crisis protocol AI handling a ${conf.title} event. Respond to this emergency query: "${query}". You must strictly follow this exact format and use these exact brackets:
-[DIRECT DIRECTIVE] (Immediate 60-second survival directive)
-[CRITICAL HAZARD VECTOR] (What NOT to touch or do - isolation rules)
-[IMMEDIATE PROTOCOL] (High-ground or tactical escalation steps)`;
-
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2 } })
+                    const res = await fetch('/api/advisory', {
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            query: query, 
+                            hazard_title: conf.title 
+                        })
                     });
 
-                    if (!res.ok) throw new Error("API Connection Failed");
+                    if (!res.ok) throw new Error("Backend API Connection Failed");
                     const data = await res.json();
-                    const aiText = data.candidates[0].content.parts[0].text;
-                    const parsedBlocks = parseAITextToBlocks(aiText);
                     
-                    if(parsedBlocks.length > 0) renderTacticalResponse(parsedBlocks, responseTextEl, stage);
-                    else throw new Error("Parsing Format Failed");
+                    if (data.status === "success") {
+                        const parsedBlocks = parseAITextToBlocks(data.text);
+                        if(parsedBlocks.length > 0) renderTacticalResponse(parsedBlocks, responseTextEl, stage);
+                        else throw new Error("Parsing Format Failed");
+                    } else {
+                        throw new Error(data.message);
+                    }
                 } catch (err) {
                     console.warn("API Error, falling back to secure tactical offline logic:", err);
                     renderTacticalResponse(getOfflineTacticalResponse(query), responseTextEl, stage);
